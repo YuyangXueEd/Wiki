@@ -1,6 +1,6 @@
 <!-- _coverpage.md -->
 
-<img src="_media/avatar.png" alt="logo" style="zoom:25%;" />
+<img src="_media/avatar.jpeg" alt="logo" style="zoom:25%;" />
 
 # Rs <small>Wiki</small>
 
@@ -25,4 +25,4 @@
 
 <!-- 背景图片 -->
 
-![](_media/bg.jpg)
+![](_media/bg1.jpg)
