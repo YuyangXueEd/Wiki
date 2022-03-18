@@ -1,7 +1,6 @@
 * [Home](README.md)
 * Academic
 	* [MRI Reconstruction](MRI/MRI_Recon.md)
-		* [Reviews](https://wiki.rasin.cyou/#/MRI/MRI_Recon_ReadingList?id=reviews)
-		* [Methods](https://wiki.rasin.cyou/#/MRI/MRI_Recon_ReadingList?id=methods)
+		* [Reading List](https://wiki.rasin.cyou/#/MRI/MRI_Recon_ReadingList)
 	* [Uncertainty](Uncertainty/Uncertainty.md)
 	* [Model Collections](Model/Model.md)
