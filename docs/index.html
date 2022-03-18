@@ -9,25 +9,21 @@
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
 </head>
 <body>
-  <!-- <nav>
-    <a href="#/README.md">首页</a>
-    <a href="#/数据挖掘/README.md">数据挖掘</a>
-    <a href="#/社区发现/README.md">社区发现</a>
-  </nav> -->
+
   <div id="app"></div>
   <script>
     window.$docsify = {
       themeColor: '#76becc',
-      name: 'CQGroup-Wiki',
-      repo: 'https://github.com/CQ-Group',
+      name: 'Rs-Wiki',
+      repo: 'https://github.com/YuyangXueEd',
 
       loadSidebar: true,
       loadNavbar: true,
       
       coverpage: true,
       pagination: {
-        previousText: '上一章节',
-        nextText: '下一章节',
+        previousText: 'Previous',
+        nextText: 'Next',
         crossChapter: false,
         crossChapterText: true,
       },
@@ -35,12 +31,12 @@
         countable:true,
         fontsize:'0.9em',
         color:'rgb(90,90,90)',
-        language:'chinese'
+        language:'english'
       },
       search: {
         paths: 'auto',
-        placeholder: '🔍 搜索',
-        noData: '😒 找不到结果',
+        placeholder: '🔍 Search',
+        noData: '😒 Nothing like that',
         // Headline depth, 1 - 6
         depth: 6,
         maxAge: 86400000, // 过期时间，单位毫秒，默认一天
@@ -81,7 +77,13 @@
 
   <!-- 访问量统计 -->
   <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+  <!--Material CSS-->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" rel="stylesheet"/>
+<script src="//unpkg.com/docsify-material-icons/dist/docsify-material-icons.min.js"></script>
 
+  <!--Pangu-->
+  <script src="//cdn.jsdelivr.net/npm/docsify-pangu/lib/pangu.min.js"></script>
 
 </body>
 </html>

@@ -1,12 +1,3 @@
----
-title: Uncertainty Quantification
-description: A collection of Uncertainty Quantification works
-published: true
-date: 2022-03-04T06:08:36.946Z
-tags: uncertainty, quantification, bayesian, statstics
-editor: markdown
-dateCreated: 2022-02-07T08:16:17.783Z
----
 
 # Uncertainty Modeling
 
