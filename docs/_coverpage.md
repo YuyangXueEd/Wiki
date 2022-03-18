@@ -2,11 +2,11 @@
 
 <img src="_media/icon.png" alt="logo" style="zoom:25%;" />
 
-# CQ Group <small>Wiki</small>
+# Rs <small>Wiki</small>
 
-> CQ Group Knowledge Base System
+> Rs Knowledge Base System
 
-[![github](https://img.shields.io/badge/github-CQGroup-brightgreen.svg)](https://github.com/CQ-Group)
+[![github](https://img.shields.io/badge/github-CQGroup-brightgreen.svg)](https://github.com/YuyangXueEd)
 
 <br>
 
@@ -20,7 +20,7 @@
 <br>
 
 
-[Blog]()
+[CV](_media/Yuyang_XUE_cv.pdf)
 [Get Started](README.md)
 
 <!-- 背景图片 -->
