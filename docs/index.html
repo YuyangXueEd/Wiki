@@ -7,6 +7,9 @@
   <meta name="description" content="Description">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="//unpkg.com/gitalk/dist/gitalk.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" rel="stylesheet"/>
+
 </head>
 <body>
 
@@ -79,11 +82,27 @@
   <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   
   <!--Material CSS-->
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" rel="stylesheet"/>
 <script src="//unpkg.com/docsify-material-icons/dist/docsify-material-icons.min.js"></script>
 
   <!--Pangu-->
   <script src="//cdn.jsdelivr.net/npm/docsify-pangu/lib/pangu.min.js"></script>
+  
+  <!--Gittalk-->
+  
+  <script src="//unpkg.com/docsify/lib/plugins/gitalk.min.js"></script>
+  <script src="//unpkg.com/gitalk/dist/gitalk.min.js"></script>
+  <script>
+    const gitalk = new Gitalk({
+      clientID: 'c5bda50c14a98c51216d',
+      clientSecret: 'd2f9cfde0883d8f5075c025ec90fc10a4b1974a8',
+      repo:'Wiki',
+      owner:'YuyangXueEd',
+      admin: ['YuyangXueEd'],
+      id: location.pathname, 
+      // facebook-like distraction free mode
+      distractionFreeMode: false
+    })
+  </script>
 
 </body>
 </html>
