@@ -1,12 +1,12 @@
 <!-- _coverpage.md -->
 
-<img src="_media/icon.png" alt="logo" style="zoom:25%;" />
+<img src="_media/avatar.png" alt="logo" style="zoom:25%;" />
 
 # Rs <small>Wiki</small>
 
 > Rs Knowledge Base System
 
-[![github](https://img.shields.io/badge/github-CQGroup-brightgreen.svg)](https://github.com/YuyangXueEd)
+[![github](https://img.shields.io/badge/github-YuyangXueEd-brightgreen.svg)](https://github.com/YuyangXueEd)
 
 <br>
 
@@ -20,7 +20,7 @@
 <br>
 
 
-[CV](_media/Yuyang_XUE_cv.pdf)
+[CV](https://github.com/YuyangXueEd/Wiki/raw/master/docs/_media/Yuyang_XUE_CV.pdf)
 [Get Started](README.md)
 
 <!-- 背景图片 -->
