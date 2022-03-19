@@ -87,24 +87,14 @@
   <!--Pangu-->
   <script src="//cdn.jsdelivr.net/npm/docsify-pangu/lib/pangu.min.js"></script>
   
-  <!--Gittalk-->
+  <!--Disqus-->
   
-  <script src="//unpkg.com/docsify/lib/plugins/gitalk.min.js"></script>
-  <script src="//unpkg.com/gitalk/dist/gitalk.min.js"></script>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/gangdong/gangdong.github.io@dev/assets/js/md5.min.js"></script>
   <script>
-    var gitalk = new Gitalk({
-      clientID: 'c5bda50c14a98c51216d',
-      clientSecret: 'd2f9cfde0883d8f5075c025ec90fc10a4b1974a8',
-      repo:'Wiki',
-      owner:'YuyangXueEd',
-      admin: ['YuyangXueEd'],
-      // facebook-like distraction free mode
-      distractionFreeMode: false,
-      id: md5(location.pathname)
-      
-    })
+    window.$docsify = {
+      disqus: 'rswiki-1'
+    }
   </script>
+  <script src="//unpkg.com/docsify/lib/plugins/disqus.min.js"></script>
 
 </body>
 </html>
