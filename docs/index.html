@@ -44,27 +44,6 @@
         depth: 6,
         maxAge: 86400000, // 过期时间，单位毫秒，默认一天
       },//添加搜索框
-      plugins: [
-        function (hook, vm) {
-           hook.mounted(function() {
-             var div = Docsify.dom.create('div')
-             div.id = 'gitalk-container'
-             var main = Docsify.dom.getNode('#main')
-             div.style = `width: ${main.clientWidth}px; margin: 0 auto 20px;`
-             Docsify.dom.appendTo(Docsify.dom.find('.content'), div)
-             var script = Docsify.dom.create('script')
-             script.async = true
-             var ctx = `gitalk.render('gitalk-container')`
-             script.textContent = ctx
-             Docsify.dom.appendTo(Docsify.dom.body, script)
-           })
-           hook.doneEach(function() {
-             var el = document.getElementById('gitalk-container')
-             while(el.hasChildNodes()) el.removeChild(el.firstChild)
-             gitalk.render('gitalk-container')
-           })
-         }
-      ]
 
     }
   </script>
@@ -110,20 +89,28 @@
   
   <!--Gittalk-->
   
-  <!--script src="//unpkg.com/docsify/lib/plugins/gitalk.min.js"></script-->
+  <script src="//unpkg.com/docsify/lib/plugins/gitalk.min.js"></script>
   <script src="//unpkg.com/gitalk/dist/gitalk.min.js"></script>
   <script>
-    const gitalk = new Gitalk({
+    var gitalk = new Gitalk({
       clientID: 'c5bda50c14a98c51216d',
       clientSecret: 'd2f9cfde0883d8f5075c025ec90fc10a4b1974a8',
       repo:'Wiki',
       owner:'YuyangXueEd',
       admin: ['YuyangXueEd'],
-      //id: decodeURI(window.location.pathname), 
+      id: location.hash.match(/#(.*?)([?]|$)/)[1],
+      title: location.hash.match(/#(.*?)([?]|$)/)[1], 
       // facebook-like distraction free mode
       distractionFreeMode: false
     })
+    
+    window.onhashchange = function(event){
+      if(event.newURL.split('#')[0] !== event.oldURL.split('#')[0]){
+        location.reload()
+      }
+    }
   </script>
 
 </body>
 </html>
+
