@@ -1,6 +1,6 @@
 # Reviews
 
-1. S. K. Zhou  et al., A Review of Deep Learning in Medical Imaging: Imaging Traits, Technology Trends, Case Studies With Progress Highlights, and Future Promises, _Proceedings of the IEEE_, vol. 109, no. 5, pp. 820–838, May 2021, doi: [10.1109/JPROC.2021.3054390](https://doi.org/10.1109/JPROC.2021.3054390).
+1. S. K. Zhou  et al., [A Review of Deep Learning in Medical Imaging: Imaging Traits, Technology Trends, Case Studies With Progress Highlights](https://ieeexplore.ieee.org/document/9363915), and Future Promises, _Proceedings of the IEEE_, vol. 109, no. 5, pp. 820–838, May 2021, doi: [10.1109/JPROC.2021.3054390](https://doi.org/10.1109/JPROC.2021.3054390).
 
 # Methods
 
