@@ -1,4 +1,3 @@
-
 # Uncertainty Modeling
 
 Uncertainty quantification plays a pivotal role in the reduction of uncertainties during both optimization and decision making, applied to solve a vairety of real-world applications [^1]. It is very important to evaluate the efficacy of AI systems before its usage.
