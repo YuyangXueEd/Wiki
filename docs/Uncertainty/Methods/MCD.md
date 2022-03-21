@@ -4,7 +4,7 @@ It is difficult to compute an exact posterior inference, but it can be approxima
 
 Monte Carlo is an effective method. However, it is a slow and computationally expensive method when integrated into a deep architecture.
 
-## Methods
+## Method
 
 MC dropout [^1] uses dropout as a regularisation term to compute the prediction uncertainty. Dropout is an effective technique that has been widely used to solve overfitting problems in DNNs. During the training process, dropout randomly drops some units of the NN to prevent excessive co-tuning.
 
@@ -46,13 +46,23 @@ Dropout samples binary variables for each input data value and every network uni
 ## Reference
 
 [^1]: Y. Gal, Z. Ghahramani, [Dropout as a Bayesian approximation: Representing model uncertainty in deep learning](http://proceedings.mlr.press/v48/gal16.html), in: International Conference on Machine Learning, 2016, pp. 1050–1059.
+
 [^2]: G. Wang, W. Li, M. Aertsen, J. Deprest, S. Ourselin, T. Vercauteren, [Aleatoric uncertainty estimation with test-time augmentation for medical image segmentation with convolutional neural networks](https://www.sciencedirect.com/science/article/pii/S0925231219301961), Neurocomputing 338 (2019) 34–45.
+
 [^3]: H. Liu, R. Ji, J. Li, B. Zhang, Y. Gao, Y. Wu, F. Huang, [Universal adversarial perturbation via prior driven uncertainty approximation](https://ieeexplore.ieee.org/document/9008259), in: Proceedings of the IEEE International Conference on Computer Vision, 2019, pp. 2941–2949.
+
 [^4]: T. Nair, D. Precup, D.L. Arnold, T. Arbel, [Exploring uncertainty measures in deep networks for multiple sclerosis lesion detection and segmentation](https://www.sciencedirect.com/science/article/abs/pii/S1361841519300994), Med. Image Anal. 59 (2020) 101557.
+
 [^5]: A. Amini, A. Soleimany, S. Karaman, D. Rus, [Spatial uncertainty sampling for end-to-end control](https://arxiv.org/abs/1805.04829), 2018, arXiv:1805.04829.
+
 [^6]: J. Tompson, R. Goroshin, A. Jain, Y. LeCun, C. Bregler, [Efficient object localization using convolutional networks](https://arxiv.org/abs/1411.4280), in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2015, pp. 648–656.
+
 [^7]: P. McClure, N. Kriegeskorte, [Representing inferential uncertainty in deep neural networks through sampling](https://arxiv.org/abs/1611.01639), in: International Conference on Learning Representations, ICLR 2017-Conference Track Proceedings, 2016.
+
 [^8]: M. Teye, H. Azizpour, K. Smith, [Bayesian uncertainty estimation for batch normalized deep networks](https://arxiv.org/abs/1802.06455), in: J. Dy, A. Krause (Eds.), Proceedings of the 35th International Conference on Machine Learning, in: Proceedings of Machine Learning Research, vol. 80, PMLR, Stockholmsmässan, Stockholm Sweden, 2018, pp. 4907–4916.
+
 [^9]: A.Y. Foong, D.R. Burt, Y. Li, R.E. Turner, [On the expressiveness of approximate inference in Bayesian neural networks](https://proceedings.neurips.cc/paper/2020/hash/b6dfd41875bc090bd31d0b1740eb5b1b-Abstract.html), 2019, arXiv arXiv–1909.
+
 [^10]: C. Hubschneider, R. Hutmacher, J.M. Zöllner, [Calibrating uncertainty models for steering angle estimation](https://ieeexplore.ieee.org/document/8917207), in: IEEE Intelligent Transportation Systems Conference, 2019, pp. 1511–1518.
+
 [^11]: J. Mukhoti, P. Stenetorp, Y. Gal, [On the importance of strong baselines in Bayesian deep learning](https://arxiv.org/abs/1811.09385), 2018, arXiv preprint arXiv:1811.09385.

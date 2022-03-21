@@ -112,6 +112,8 @@ Bayesian Deep Learning can be used to interpret the model parameters. BNNs are r
 
 - [Monte Carlo (MC) dropout ](Uncertainty/Methods/MCD)
 - [Markov chain Monte Carlo (MCMC)](Uncertainty/Methods/MCMC)
+- [Variational inference (VI)](Uncertainty/Methods/VI)
+- [Bayesian Active Learning(BAL)](Uncertainty/Methods/BAL)
 
 ![different uncertainty models](../../_media/diff_uncertainty_models.png)
 
@@ -128,6 +130,9 @@ Bayesian Deep Learning can be used to interpret the model parameters. BNNs are r
 ## Reference
 
 [^1]: M. Abdar et al., ‘A Review of Uncertainty Quantification in Deep Learning: Techniques, Applications and Challenges’, Information Fusion, vol. 76, pp. 243–297, Dec. 2021, doi: 10.1016/j.inffus.2021.05.008.
+
 [^2]: B. T. Phan, “Bayesian deep learning and uncertainty in computer vision,” Master’s thesis, University of Waterloo, 2019.
+
 [^3]: A. Kendall and Y. Gal, “What uncertainties do we need in bayesian deep learning for computer vision?” in Advances in neural information processing systems, 2017, pp. 5574–5584.
+
 [^4]: Y. Gal and Z. Ghahramani, “Bayesian convolutional neural net- works with bernoulli approximate variational inference,” arXiv preprint arXiv:1506.02158, 2015
