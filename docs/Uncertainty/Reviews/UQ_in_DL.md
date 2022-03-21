@@ -113,15 +113,18 @@ Bayesian Deep Learning can be used to interpret the model parameters. BNNs are r
 - [Monte Carlo (MC) dropout ](Uncertainty/Methods/MCD)
 - [Markov chain Monte Carlo (MCMC)](Uncertainty/Methods/MCMC)
 - [Variational inference (VI)](Uncertainty/Methods/VI)
-- [Bayesian Active Learning(BAL)](Uncertainty/Methods/BAL)
+- [Bayesian Active Learning (BAL)](Uncertainty/Methods/BAL)
+- [Bayes By Backprop (BBB)](Uncertainty/Methods/BBB)
 
-![different uncertainty models](../../_media/diff_uncertainty_models.png)
 
-![UAs](../../_media/UAs.png)
 
 ## Other Methods
 - [Deep Gaussian Processes *GDPs*](Uncertainty-Quantification/DGPs)
 - [Laplace approximations *LAs*](Uncertainty-Quantification/LAs)
+
+![different uncertainty models](../../_media/diff_uncertainty_models.png)
+
+![UAs](../../_media/UAs.png)
 
 ## Applications 
 
