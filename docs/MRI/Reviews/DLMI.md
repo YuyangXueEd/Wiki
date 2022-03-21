@@ -141,9 +141,18 @@ Plain radiography and CT are the two most common modalities to image the chest.
 
 ### Deep Learning in Neuroimaging
 
+Many neuroimaging tasks, including segmentation, registration, and prediction, now have DL-based implementations. CNN have allowed for efficient network parameterisation and spatial invariance, both of which are critical when dealing with high-dimensional neuroimaging data.
+
+The learnable feature reduction and selection capabilities of CNNs have proven effective in high-level prediction and analysis tasks and have reduced the need for highly specific domain knowledge.
+
+#### Neuroimage Segmentation and Tissue Classification
+
+Accurate segmentation is an important preprocessing step that informs much of the downstream analytic and predictive tasks done in neuroimaging.
 
 
 
+
+#### 
 
 
 ## Reference
