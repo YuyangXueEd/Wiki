@@ -169,7 +169,7 @@ Compared with ETE models, the iterative nature of UO increases the computation t
 
 ### Regularizer Terms Used
 
-![regularizer_terms.png](../_media/regularizer_terms.png)
+![regularizer_terms.png](regularizer_terms.png)
 
 * DL: Dictionary learning. Here $z$ is the latent dictionary representation or transformation of the input image. The regularizer term enforces sparsity on this dictionary representation to satisfy CS criteria. In deep dictionary learning, multiple layers of dictionaries learn this latent transform $z$.
 * pFIST-SENSE： Projected fast iterative soft-thresholding algorithm-sensitivity encoding. It use a transform $\Psi$ to enforce sparsity of the reconstructed image $x$. In the deep-learning version, this transform is replaced with a neural network.
@@ -229,7 +229,7 @@ Two studies [^26][^27] use a hybrid of k-space and image space. For a 2-D unders
 
 The cross-domain design leverages signals from multiple domains.
 
-![kikinet.png](../_media/kikinet.png)
+![kikinet.png](kikinet.png)
 
 * KIKI-net [^28] concatenates a subnetwork operating on the k-space (k-net) with another subnetwork on the image domain (i-net) and so on.
   * The undersampled k-space signals are first reconstructed by the k-net, followed by the inverse Fourier transform to the image domain to be processed by the i-net.
@@ -239,7 +239,7 @@ The cross-domain design leverages signals from multiple domains.
 
 The advantage of a cross-domain network is that hte k-space-based network excels in removing high-frequency artifacts. Cross-domain networks outperform networks that opearte only in the image domain.
 
-![sub_parallel.png](../_media/sub_parallel.png)
+![sub_parallel.png](sub_parallel.png)
 
 Some cross-domain networks concatenate subnetworks in parallel. The undersampled k-space signals are supplied to a k-net. In parallel, the undersampled image from the inverse Fourier transform is supplied to an 
 i-net.  
@@ -306,7 +306,7 @@ The most popular dataset is human connectome projects, fastMRI, and IXI.
 
 The most popular augmentation techniques were flipping and rotation.  Less popular techniques included adding random noise, sharpness, contrast, and using images of different acceleration ratios. However, few studies assessed the impact of data augmentation on the performance of deep learning models in CS MRI.
 
-![Mode and Region](../_media/model_region.png)
+![Mode and Region](model_region.png)
 Regarding the contrast of the MR images, T1 weighted and T2 weighted were the most popular. The least popular were MR angiography (MRA), hyperpolarised  $^{129}$Xe imaging, and contrast-enhanced MRI, probably linked to the scarcity of publicly available datasets.
 
 Concerning the pathological features of the datasets, $26.1\%$ of the studies used pathology-free training and testing sets, while $26.1\%$ of the studies included pathology in both sets. 
@@ -347,11 +347,11 @@ Despite attempts to circumvent complex-valued calculations, support for complex-
 
 The reproducibility of DL models by considering whether the dataset and source code were accessible.
 
-![model_clusters.png](../_media/model_clusters.png)
+![model_clusters.png](model_clusters.png)
 
 # Evaluation Metrics
 
-![e-metrics.png](../_media/e-metrics.png)
+![e-metrics.png](e-metrics.png)
 
 Undersampling can be retrospective, that is, under-sample the already acquired MR images. Prospective undersampling means collecting the undersampled k-space signals directly from the MR scanners and can better reflect performance in a real-life situation. Compared with prospective undersampling, retrospective undersampling is more financially and logistically feasible.
 

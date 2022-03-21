@@ -149,12 +149,76 @@ The learnable feature reduction and selection capabilities of CNNs have proven e
 
 Accurate segmentation is an important preprocessing step that informs much of the downstream analytic and predictive tasks done in neuroimaging.
 
+- Some research has looked at improving the generalisation performance of DL-based segmentation methods across neuroimaging data sets imaged at different scanners
+	- Kamnitsas et al. [^2] have proposed a training schema which leverages adversarial training to learn scanner invariant feature representations.
+		- They use an adversarial network to classify the origin of the input data based on the downstream feature representation learned by the segmentation network.
+		- By penalising the segmentation network for improved performance of the adversarial network, they show improved segmentation generalisation across data sets.
+- The Brain Tumor Segmentation Challenge (BraTS) has provided the community with an accessible data set and a way to benchmark various approaches against one another.
+- Anather task where deep networks are finding increasing success is semantic segmentation in which anatomical labels are not necessarily well-defined by image intensity changes but can be identified by relative anatomical locations.
+
+#### Deformable Image Registration
+
+Image registration allows for imaging analysis in a single subject across imaging modalities and time points. DL-based deformable registration with neuroimaging data has proven to be a difficult problem, especially considering the lack of ground truth.
+
+#### Neuroimaging Prediction
+
+By working on the raw image, reliance on complex and time-consuming preprocessing can be reduced. 
+
+Some work has considered the use of deep Siamese networks for longitudinal image analysis. They work by jointly optimizing a set of weights on two images with respect to some distance metric between them. This setup makes them effective at identifying longitudinal changes on some chosen dimensions.
+
+#### Use of GANs
+
+GANs and their variants have been used in neuroimging for cross-modality synthesis, motion artifact reduction, resolution upscaling, estimating full-dosage PET images from low-dosage PET, image harmonisation, heterogeneity analysis, and more.
+
+- The popular MedGAN [^3] propose a series of modifications and new loss function to traditional GANs, aimed at preserving anatomically relevant information and fine details.
+	- They use auxiliary classifiers on the translated image to ensure that the resulting image feature representation is similar to the expected image representation for a given task.
+	- They use style-transfer loss in combination with an adversarial loss to ensure that fine structures and textural details are matched in the translation.
+
+Certain areas still lack a rigorous understanding. Important lines of research, such as learning from limited data, optimal hyperparameter selection, domain adaptation, semisupervised designs, and improving robustness, require further investigation.
+
+### Deep Learning in Cardiovascular Imaging
+
+There has been significant recent work in a variety of subareas of cardiovascular imaging, including image reconstruction, end-to-end learning of cardiac pathology from images, and incorporation of nonimaging information for analysis. Motion tracking and segmentation both play crucial roles in the detection and quantification of myocardial chamber dysfunction and can help in the diagnosis of cardiovascular disease (CVD). Motion tracking algorithms use segmentation results as an anatomical guide to sample points and regions of interest used to generate displacement fields.
+
+Cardiac image segmentation is an important first step for many clinical applications. The aim is typically to segment the main chambers, LV, RV, LA, RA. This enables the quantification of parameters that describe cardiac morphology.
+
+Cardiac motion tracking is key for deformation/strain analysis and is important for analysing the mechanical performance of heart chambers. A variety of image registration, feature-based tracking, and regularisation methods using both biomechanics models and data-driven learning have been developed.
 
 
 
-#### 
+### Deep Learning in Abdominal Imaging
+
+### Deep Learning in Microscopy Imaging
+
+## Discussion
+
+### Technical Challenges Ahead
+
+Most challenges are met by continuous improvement of solutions to the well-known data challenge. As systems are starting to be implemented across datasets, hospitals, and countries, a new spectrum of challenges is arising including *system robustness and generalisation* across acquisition protocols, machines, and hospitals.
+
+Data preprocessing, continuous model learning, and fine-tuning across systems are a few of the new developments ahead. 
+
+### How Do We Get New Tools Into the Clinic
+
+In several recent works conducted to estimate the utility of AI-based technology as an aid to the radiologist, it is consistently shown that human experts with AI perform better than those without AI.
+
+- There are a variety of reasons for this delayed clinical translation， including：
+	- users being cautious regarding the technology, specifically the prospect of being replaced by AI
+	- the need to prove that the technology can address real user needs and bring quantifiable benefits
+	- regulatory pathways that are long and costly
+	- patient safety considerations
+	- economic factors, such as who will pay for AI tools
+
+### Future Promise
+
+One immediate step forward is to combine the image with additional clinical context, from patient record to additional clinical descriptors (blood tests, genomics, medications, vital signs, and nonimaging data such as ECG). This step will provide a transition from image space to patient-level information. Collecting cohorts will enable the population-level statistical analysis to learn about disease manifestations, treatment responses, adverse reactions from and interactions between medications.
+
+This requires building complex infrastructure, along with the generation of new privacy and security regulations -- between hospitals and academic research institutes, across hospitals, and in multinational consortia.
+
 
 
 ## Reference
 
 [^1]: Y. Dgani, H. Greenspan, and J. Goldberger, [Training a neural network based on unreliable human annotation of medical images](https://ieeexplore.ieee.org/document/8363518/), in Proc. IEEE 15th Int. Symp. Biomed. Imag. (ISBI), Apr. 2018, pp. 39–42.
+[^2]: K. Kamnitsas et al., [Unsupervised domain adaptation in brain lesion segmentation with adversarial networks](https://link.springer.com/chapter/10.1007/978-3-319-59050-9_47), in Proc. Int. Conf. Inf. Process. Med. Imag. Cham, Switzerland: Springer, 2017, pp. 597–609.
+[^3]: K. Armanious et al., [MedGAN: Medical image translation using GANs](https://www.sciencedirect.com/science/article/pii/S0895611119300990), Comput. Med. Imag. Graph., vol. 79, Jan. 2020, Art. no. 101684.
