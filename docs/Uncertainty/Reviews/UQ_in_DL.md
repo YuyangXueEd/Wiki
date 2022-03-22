@@ -116,11 +116,12 @@ Bayesian Deep Learning can be used to interpret the model parameters. BNNs are r
 - [Bayesian Active Learning (BAL)](Uncertainty/Methods/BAL)
 - [Bayes By Backprop (BBB)](Uncertainty/Methods/BBB)
 
-
-
 ## Other Methods
-- [Deep Gaussian Processes *GDPs*](Uncertainty-Quantification/DGPs)
-- [Laplace approximations *LAs*](Uncertainty-Quantification/LAs)
+- [Deep Gaussian Processes (GDPs)](Uncertainty/GDPs)
+- [Variational Autoencoder (VAE)](Uncertainty/Methods/VAE)
+- [Laplacian Approximations (LA)](Uncertainty/Methods/LA)
+
+
 
 ![different uncertainty models](../../_media/diff_uncertainty_models.png)
 
