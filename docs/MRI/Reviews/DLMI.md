@@ -220,5 +220,7 @@ This requires building complex infrastructure, along with the generation of new 
 ## Reference
 
 [^1]: Y. Dgani, H. Greenspan, and J. Goldberger, [Training a neural network based on unreliable human annotation of medical images](https://ieeexplore.ieee.org/document/8363518/), in Proc. IEEE 15th Int. Symp. Biomed. Imag. (ISBI), Apr. 2018, pp. 39–42.
+
 [^2]: K. Kamnitsas et al., [Unsupervised domain adaptation in brain lesion segmentation with adversarial networks](https://link.springer.com/chapter/10.1007/978-3-319-59050-9_47), in Proc. Int. Conf. Inf. Process. Med. Imag. Cham, Switzerland: Springer, 2017, pp. 597–609.
+
 [^3]: K. Armanious et al., [MedGAN: Medical image translation using GANs](https://www.sciencedirect.com/science/article/pii/S0895611119300990), Comput. Med. Imag. Graph., vol. 79, Jan. 2020, Art. no. 101684.

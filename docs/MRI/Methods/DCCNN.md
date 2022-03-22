@@ -48,7 +48,7 @@ The $f_{cnn}$ parameterised by $\theta$, which takes in the zero-filled reconstr
 The output of the CNN is conditioned on $\Omega$, an index set indicating which $k$-space measurements have been sampled in $y$: $x_{cnn}=f_{cnn}(x_u|\theta, \lambda, \Omega)$. Given training data $\mathcal{D}$ of input-target pairs $(x_u, x_t)$, we can train the CNN to produce an output that attempts to accurately reconstruct the fully-sampled data by minimising an objective function:
 
 $$
-\mathcal{L}(\theta)=\sum_{(x_u, x_t)\in\mathcal{D}} l(x_t, x_cnn)
+\mathcal{L}(\theta)=\sum_{(x_u, x_t)\in\mathcal{D}} l(x_t, x_{cnn})
 $$
 
 where $l$ is an element-wise squared loss in this work.
@@ -140,7 +140,7 @@ Our CNN takes in a two-channeled image $\mathbb{R}^{\sqrt n\times \sqrt n\times 
 	- For each frame we acquired eight lowest spatial frequencies.
 	- The sampling probability of other frequencies along the phase-encoding direction was determined by a zero-mean Gaussian distribution.
 
-- We restrict our experiments to the 2D case only. Each time frame was treated as an independent image, yielding a total of 300 iamges.
+- We restrict our experiments to the 2D case only. Each time frame was treated as an independent image, yielding a total of 300 images.
 - Applying rigid transformations as a data augmentation was crucial, or overfitted.
 - For a fixed undersampling rate, we generated an undersampling mask on-the-fly to allow the network to learn diverse patterns of aliasing artefact.
 

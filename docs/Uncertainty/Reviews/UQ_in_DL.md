@@ -30,9 +30,6 @@ Irreducible uncertainty in data giving rise to uncertainty in predictions is an 
 
 The aleatoric uncertainty has two types: *homoscedastic* and *heteroscedastic* [^3].
 
-- []
-{.links-list}
-
 ### Epistemic
 
 *Epistemic uncertainty* (also known as model uncertainty) occurs due to inadequate knowledge and data. 
