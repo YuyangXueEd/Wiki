@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Undersampling in *k*-space violates the Nyquist-Shannon theorem and generates aliasing artefacts when the image is reconstructed. The main challenge in this case is to find an algorithm that taks into account the undersampling undergone and can compensate missing data with a-prior knowledge on the image to be reconstructed.
+Undersampling in *k*-space violates the Nyquist-Shannon theorem and generates aliasing artefacts when the image is reconstructed. The main challenge in this case is to find an algorithm that takes into account the undersampling undergone and can compensate missing data with a-prior knowledge on the image to be reconstructed.
 
 Using Compressed Sensing (CS), images can be reconstructed from sub-Nyquist sampling, a.k.a, **CS-MRI**:
 
@@ -15,7 +15,7 @@ One of the contributions of our work is to explore the application of CNNs in un
 
 We view the reconstruction problem as a de-alising problem in the image domain.
 
-We propose a very deep network archiecture which forms a cascade of CNNs. Our cascade network closely simulates the iterative reconstruction of DL-based methods, however, our approach allows end-to-end-optimisation of the reconstruction algorithm. We show that under the Cartesian undersampling scheme, our CNN approach is capable of producing high-quality reconstructions of 2D cardiac MR images, outperforming DL-based MRI reconstruction.
+We propose a very deep network architecture which forms a cascade of CNNs. Our cascade network closely simulates the iterative reconstruction of DL-based methods, however, our approach allows end-to-end-optimisation of the reconstruction algorithm. We show that under the Cartesian undersampling scheme, our CNN approach is capable of producing high-quality reconstructions of 2D cardiac MR images, outperforming DL-based MRI reconstruction.
 
 ## Problem Formulation
 
@@ -25,7 +25,7 @@ $$
 y = F_u x
 $$
 
-Here $F_u \in \mathbb{C}^{M\times N}$ is an undersampled Fourier encoding matrix. For undersampled $k$-space measurements ($M <<N$), the system is undertdetermined and hence the inversion process is ill-defined. In order to reconstruct $x$, one must exploit a-priori knowledge of its properties, which can be done by formulating an unconstrained optimisation problem:
+Here $F_u \in \mathbb{C}^{M\times N}$ is an undersampled Fourier encoding matrix. For undersampled $k$-space measurements ($M <<N$), the system is underdetermined and hence the inversion process is ill-defined. In order to reconstruct $x$, one must exploit a-priori knowledge of its properties, which can be done by formulating an unconstrained optimisation problem:
 
 $$
 \underset{x}{\min} \mathcal{R}(x) + \lambda\|y-F_ux\|_2^2
@@ -170,15 +170,6 @@ The CNN method was capable of reconstructing most of the anatomical structures m
 The limitation of this work is that the data was first reconstructed by SENSE, which was then used to simulated the acquisition process. It is more practical to consider images with sensitivity map of the surface coils, which allows the model to be used for parallel imaging reconstruction directly. A better approach is to exploit the redundancy of the coil sensitivity maps and combine directly into our model.
 
 A further investigation should consider how tolerant the network is for different undersampling rates. It is interesting to consider other sampling patterns such as radial and spiral trajectories. As these trajectories provide different properties of aliasing artefacts, a further validation is appropriate to determine the flexibility of our approach.
-
-
-
-
-
-
-
-
-
 
 ## Reference
 

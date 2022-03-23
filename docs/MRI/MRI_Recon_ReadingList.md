@@ -6,3 +6,9 @@
 ## Methods
 
 1. J. Schlemper, J. Caballero, J. V. Hajnal, A. Price, and D. Rueckert, [A Deep Cascade of Convolutional Neural Networks for MR Image Reconstruction](MRI/Methods/DCCNN.md), _arXiv:1703.00555 [cs]_, Mar. 2017, Accessed: Mar. 16, 2022. [Online]. Available: [Arxiv](http://arxiv.org/abs/1703.00555)
+
+2. J. Schlemper, J. Caballero, J. V. Hajnal, A. N. Price, and D. Rueckert, [A Deep Cascade of Convolutional Neural Networks for Dynamic MR Image Reconstruction](MRI/Methods/DCCNN-DMRI.md), _IEEE Transactions on Medical Imaging_, vol. 37, no. 2, pp. 491–503, Feb. 2018, doi: [10.1109/TMI.2017.2760978](https://doi.org/10.1109/TMI.2017.2760978).
+
+## Dataset
+
+1. 
