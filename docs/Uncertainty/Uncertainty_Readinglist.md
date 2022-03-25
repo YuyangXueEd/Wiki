@@ -10,3 +10,4 @@
 5. C. Blundell, J. Cornebise, K. Kavukcuoglu, D. Wierstra, [Weight uncertainty in neural networks](Uncertainty/Methods/BBB.md), 2015, arXiv preprint arXiv:1505.05424. 
 6. P. Ghosh, M.S.M. Sajjadi, A. Vergari, M. Black, B. Schölkopf, [From variational to deterministic autoencoders](Uncertainty/Methods/VAE.md), 2019, arXiv:1903.12436.
 7. H. Ritter, A. Botev, D. Barber, [A scalable laplace approximation for neural networks](Uncertainty/Methods/LA.md), in: 6th international conference on learning representations, in: ICLR 2018-Conference Track Proceedings, Vol. 6, International Conference on Representation Learning, 2018.
+8. K. Cai, C. X. Lu, and X. Huang, [STUN: Self-Teaching Uncertainty Estimation for Place Recognition](Uncertainty/Methods/STUN.md), _arXiv:2203.01851 [cs]_, Mar. 2022, Accessed: Mar. 25, 2022. [Online]. Available: [http://arxiv.org/abs/2203.01851](http://arxiv.org/abs/2203.01851)
