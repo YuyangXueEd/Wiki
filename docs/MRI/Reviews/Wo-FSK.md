@@ -160,13 +160,43 @@ where $I\theta(y_i)$ is an output of the network, the $\mathfrak{R}$ is predefin
 
 ### Self-partition k-space data
 
+Yaman et al. [^4] proposed to divide the measured undersampling space $\Omega$ into two disjoint subsets satisfying $\Omega=\Lambda \cup \Theta$ to train VSQP-based unrolled reconstruction network, where $\Lambda$ was used as the network input for training and $\Theta$ was used to calculate the loss functions, which could be called self-supervised learning via data under-sampling. At a certain moderately acceleration rate the mentioned method can achieve comparable performance to supervised learning with fully sampled data and be better than traditional compressed sensing and parallel imaging.
 
+Since the under-sampled data needs to be divided, the information provided to the network for learning is further reduced, which will result in a poor network reconstruction performance at a high acceleration time.
+
+Yaman et al. [^5] further proposed a multi-mask method increasing the use of under-sampled data to improve the quality of reconstruction at higher acceleration rates. Here, the under-sampling data was divided into multiple disjoint subsets $\Omega = \Lambda_j \cup \Theta_j$ for $i=1, \cdots, K$ denoting the number of partitions for each scan. We can visualise the process through the image below.
+
+![wiofsk_SSDU.png](../../_media/wiofsk_SSDU.png)
+
+The result illustrated that the multi-mask method outperforms SSDU at high acceleration rates. Even so, since the essence that partition will decrease information to the network can not be changed, acceleration rates are still limited.
 
 ### k-space information complement each other
 
+The key problem that we can not use supervised learning for network training is that we do not have missing information as a label in each sample.
+
+Inspired by Noise2Noise [^6], the artefact-contaminated dataset obtained by sampling the same object multiple times will supplement the information missing in each sample, which enables the training of the imaging priors. However, sampling multiple times for the same object violates the original intention of accelerating MRI reconstruction and not requiring fully sampled data, hence it has a little restriction on application scenarios.
+
+Specific deep learning models need to be adapted for specific task:
+- Gan et al. [^7] use the middle adjacent layers having the most relevant brain regions in each object from open dataset OASIS-3 to simulate multiple sampling of the same object.
+	- training two networks simultaneously, one was used for reconstruction by utilising information supplement between different samples, and another to register the image as the object may have moved in the actual scanning process.
+	- The method was superior to the unregistered Noise2Noise method and the traditional total variation (TV) method in terms of sharpness, contrast and de-artefacts.
+- Similarly, for organs such as cardiac that produce motion, Ke et al. [^8] used a time-interleaved acquisition scheme to build a series of fully encoded data as reference images for network training by merging the k-space of several adjacent frames along the time dimension.
+- Experiments have shown that converting advanced denoising devices into regularisation items can achieve good results, regularisation by denoising (RED)[^9] and the plug-and-play-prior (PnP)[^10] are two common skills.
+- Liu et al. [^11] proposed to pre-train a de-artefact network as imaging prior through information though information complement between under-sampled data, the regularisation function used the basic framework of RED, where the denoiser was replaced by the pre-train network $I_\theta(x)$ in the following form.
+	- $\mathfrak{R}(x)=\frac \tau 2 x^T(x-I-\theta(x))$
+	- where $\tau$ is a regularisation parameter
+
 ### Assuming known probability distribution as prior
 
+The real probability distribution between the generated output and the input of the discriminator will directly affect the utility of the final generator output as both of them approximating when the generator and discriminator obtaining equilibrium.
 
+Cole et al. [^12] proposed to build an ISTA-based GAN network for MRI reconstruction in the absence of fully sampled data. The network framework shown in the Fig below is based on the assumption that the randomly undersampled k-space $y'$ has the approximate distribution as the initially obtained measured k-space $y$, where $y'$ is obtained by performing forward measurement operation including random undersampled mask on the output of the generator. Hence, since the distribution $A$ is known, the true underlying distribution of $x$ can be uniquely determined $y'$.
+
+![wiofsk_GAN.png](../../_media/wiofsk_GAN.png)
+
+Meanwhile， Wasserstein distance is continuous and differentiable compared with Jensen-Shannon to serve as the measure of the distance between two probability distribution, and it is variation WGAN-GP which has proven to have the best convergence performance was selected as the loss function of the network here. Ultimately, the experiment was carried out on dynamic contrast-enhanced data and knee data, and the results showed that the reconstruction quality has competed to supervised counterpart and better than CS.
+
+Lei et al. [^13] suggested 2D images that are easier to obtain can be used as training labels for DCE images to train a PGD-based GAN network. For this type of method, degree of joint probability distribution between unpaired samples will directly affect the experimental results. Thereby, the experimental results can be predicted to be no better than CS because the unpaired samples are completely disjoint.
 
 
 ## Reference
@@ -176,3 +206,21 @@ where $I\theta(y_i)$ is an output of the network, the $\mathfrak{R}$ is predefin
 [^2]: Yazdanpanah AP, Afacan O, Warfield SK. [Non-learning based deep parallel MRI reconstruction (NLDpMRI)](https://www.spiedigitallibrary.org/conference-proceedings-of-spie/10949/1094904/Non-learning-based-deep-parallel-MRI-reconstruction-NLDpMRI/10.1117/12.2511653.short?SSO=1). In: Medical imaging 2019: image process- ing, vol. 10949. International Society for Optics and Photonics (SPIE); 2019. p. 1094904.
 
 [^3]: Senouf O, Vedula S, Weiss T, Bronstein A, Michailovich O, Zibulevsky M. [Self-supervised learning of inverse problem solvers in medical imaging](https://www.springerprofessional.de/en/self-supervised-learning-of-inverse-problem-solvers-in-medical-i/17267636). Cham: Springer; 2019. p. 111–9.
+
+[^4]: Yaman B, Hosseini SAH, Moeller S, Ellermann J, Uğurbil K, Akçakaya M. [Self-supervised learning of physics-guided reconstruction neural networks without fully sampled reference data](https://onlinelibrary.wiley.com/doi/abs/10.1002/mrm.28378). Magn Reson Med. 2020;84(6):3172–91.
+
+[^5]: Yaman B, Hosseini SAH, Moeller S, Ellermann J, Uğurbil K, Akçakaya M. [Multi-mask self-supervised learning for physics-guided neural networks in highly accelerated MRI](https://arxiv.org/abs/2008.06029); 2020. https://arxiv.org/abs/2008.06029.
+
+[^6]: Lehtinen J, Munkberg J, Hasselgren J, Laine S, Karras T, Aittala M. [Noise2noise: learning image restoration without clean data](https://arxiv.org/abs/1803.04189); 2018. https://arxiv. org/abs/1803.04189.
+
+[^7]: Gan W, Sun Y, Eldeniz C, Liu J, An H, Kamilov US. [Deep image reconstruc- tion using unregistered measurements without groundtruth](https://ieeexplore.ieee.org/document/9434079); 2020. https://arxiv.org/abs/2009.13986.
+
+[^8]: Ke Z, Cheng J, Ying L, Zheng H, Liang D. [An unsupervised deep learning method for multi-coil cine MRI](https://arxiv.org/abs/1912.12177). Phys Med Biol. 2020;65(23):235041.
+
+[^9]: Romano Y, Elad M, Milanfar P. [The little engine that could: regularization by denoising (RED)](https://arxiv.org/abs/1611.02862). SIAM J Imaging Sci. 2017;10(4):1804–44.
+
+[^10]: Venkatakrishnan SV, Bouman CA, Wohlberg B. [Plug-and-play priors for model based reconstruction](https://ieeexplore.ieee.org/document/6737048). In: Proceeding of the 2013 IEEE global conference on signal and information processing (GlobalSIP); 2013. p. 945–8.
+
+[^11]: Liu J, Sun Y, Eldeniz C, Gan W, An H, Kamilov US. [RARE: Image reconstruction using deep priors learned without ground truth](https://arxiv.org/abs/1912.05854). IEEE J Sel Top Signal Process. 2020;14(6):1088–99.
+
+[^12]: Cole EK, Pauly JM, Vasanawala SS, Ong F. [Unsupervised MRI reconstruction with generative adversarial networks](https://arxiv.org/abs/2008.13065); 2020. https://arxiv.org/abs/ 2008.13065.
