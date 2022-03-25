@@ -103,7 +103,9 @@ $$
 \widehat{Var}[x^*]:=\frac1T \sum^T_{t=1}g^{\widetilde{\omega_t}}(x)\mathbf{I}+f^{\widetilde{\omega_t}}(x^*)^Tf^{\widetilde{w_t}}(x^*)\\-\tilde{\mathbb{E}}[y^*]^T\tilde{\mathbb{E}}[y^*]\underset{T\rightarrow\infty}{\rightarrow} Var_{q^*_\theta(y^*|x^*)}[y^*]
 $$
 
-## Bayesian Techniques
+## Methods
+
+### Bayesian Techniques
 
 Bayesian Deep Learning can be used to interpret the model parameters. BNNs are robust to over-fitting problem and can be trained on both small and big datasets.
 
@@ -112,17 +114,25 @@ Bayesian Deep Learning can be used to interpret the model parameters. BNNs are r
 - [Variational inference (VI)](Uncertainty/Methods/VI)
 - [Bayesian Active Learning (BAL)](Uncertainty/Methods/BAL)
 - [Bayes By Backprop (BBB)](Uncertainty/Methods/BBB)
-
-## Other Methods
 - [Deep Gaussian Processes (GDPs)](Uncertainty/GDPs)
 - [Variational Autoencoder (VAE)](Uncertainty/Methods/VAE)
 - [Laplacian Approximations (LA)](Uncertainty/Methods/LA)
+- [UQ in RL](Uncertainty/Methods/UQ-in-RL)
 
+### Ensemble Techniques
 
+- [General idea](Uncertainty/Methods/Emsemble)
+- [Deep Ensemble](Uncertainty/Methods/Deep-Ensemble)
 
 ![different uncertainty models](../../_media/diff_uncertainty_models.png)
 
 ![UAs](../../_media/UAs.png)
+
+### Further studies of UQ methods
+
+-[NADS](Uncertainty/Methods/NADS)
+- [DGP](Uncertainty/Methods/DGP)
+
 
 ## Applications 
 

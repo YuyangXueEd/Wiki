@@ -130,7 +130,7 @@ Alternatively, one can perform a sampling trajectory optimisation to reduce the 
 
 We implement *data sharing layers* which take an input image and generate multiple *data-shared* images for a range $n_{adj}$. The resulting images are concatenated along the channel-axis and treated as a new input fed into the first convolution layer of the CNNs. Therefore, using the images obtained from data sharing can be interpreted as transforming the problem into joint estimation of aliasing as well as the dynamic motion, where the effect of aliasing is considerably smaller. 
 
-For the cascading network architecture, from the second subnetwork onwards, the input to each subnetwork is nolonger "undersampled", but instead contains intermediate predicted values from the previous subnetwork. We average all the entries from the adjacent frames and update the samples which were not intially acquired.
+For the cascading network architecture, from the second subnetwork onwards, the input to each subnetwork is nolonger "undersampled", but instead contains intermediate predicted values from the previous subnetwork. We average all the entries from the adjacent frames and update the samples which were not initially acquired.
 
 ## Architecture and Implementation
 

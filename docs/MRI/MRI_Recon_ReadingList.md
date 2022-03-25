@@ -2,6 +2,7 @@
 
 1. Y. Chen et al., [AI-Based Reconstruction for Fast MRI—A Systematic Review and Meta-Analysis](MRI/Reviews/MRI_Recon.md), Proceedings of the IEEE, vol. 110, no. 2, pp. 224–245, Feb. 2022, [doi](10.1109/JPROC.2022.3141367).
 2. S. K. Zhou  et al., [A Review of Deep Learning in Medical Imaging: Imaging Traits, Technology Trends, Case Studies With Progress Highlights](MRI/Reviews/DLMI.md), and Future Promises, _Proceedings of the IEEE_, vol. 109, no. 5, pp. 820–838, May 2021, [doi](https://doi.org/10.1109/JPROC.2021.3054390).
+3. G. Zeng et al., [A review on deep learning MRI reconstruction without fully sampled k-space](MRI/Reviews/Wo-FSK.md), _BMC Med Imaging_, vol. 21, no. 1, p. 195, Dec. 2021, doi: [10.1186/s12880-021-00727-9](https://doi.org/10.1186/s12880-021-00727-9).
 
 ## Methods
 
