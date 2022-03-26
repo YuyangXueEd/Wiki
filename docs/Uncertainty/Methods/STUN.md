@@ -147,18 +147,47 @@ Since the teacher net and the student net share the same feature extractor archi
 
 #### Uncertainty Estimation Performance 
 
+The uncertainty is evaluated by ECE (expected calibration error). ECE illustrates the correlation between uncertainty level and recognition performance. Ideally, and uncertainty-aware place recognition system generates the best recognition performance or the lowest uncertainty samples, and shows degraded recognition performance as the uncertainty grows.
+
+To calculate ECE for r@N, we first divide the recognition results of all test queries into $M$ equal bins $\B_i|i=1, 2, \dots, M$ based on uncertainties of the query samples, and then calculate the r@N for queries in each bin. $M$ bins will result in $M$ uncertainty level $\mathcal{U}(B_i)$, which are normalised such that he maximum uncertainty level equals $1.0$. In order to calculate ECE, a confidence level $\mathcal{C}$ is defined as $\mathcal{C} = 1.0 - \mathcal{U}$. The final ECE for r@N score is obtained by:
+
+$$
+ECE_{r@N}=\frac{\sum^M_i|B_i|\cdot|r@N(B_i)-\mathcal{C}(B_i)|}{\sum^M_i|B_i|}
+$$
+
+Intuitively, the term $|r@N(B_i)-\mathcal{C}(B_i)$ encourages recognition accuracy to match confidence level. Replacing r@N with mAP@N will generate $ECE_{mAP@N}$ and $ECE_{AP}$. We use reliability diagram [^15] as a qualitative metric.
+
 ## Results 
 
 ### Comparison
+
 #### MC Dropout
+
+We employed dropout layers after every convolutional layer in our ResNet50 backbone and setting dropout rate $p=0.2$ during both training and inference phase.
+
+We note that MC dropout is designed for epistemic uncertainty estimation rather than the aleatoric uncertainty targeted by STUN.
 
 #### PFE
 
+PFE first trains a deterministic embedding mean head, and then freezes it. After that, it only trains the variance head. To make a fair comparison, we only substitute our $L_{std}$ with MLS loss when training the variance head.
+
 #### BTL
+
+We follow the parameters of the original paper without extra modification for a fair comparison.
 
 ### Quantitative Analysis
 
-#### Uncertainty Quanlity
+#### Uncertainty Quantity
+
+![stun-realiabilitydiagram.png](../../_media/stun-realiabilitydiagram.png)
+
+The figure shows the reliability diagram for methods trained with triplet inputs. It shows that the STUN curve is closest to the ideally calibrated line.
+
+With respect of $ECE_{r@1}, ECE_{mAP@1}$ and $ECE_{AP}$, STUN produces the best-calibrated embedding uncertainty among methods trained with triplet inputs.
+
+When comparing  $ECE_{mAP@5/10}$, we found MC Dropout deliver the best uncertainty estimation quality while STUN ranks second place. However, MC Dropout achieves this at the cost of drastically losing recognition performance.
+
+In summary, by leveraging a self-teaching strategy, sTUN not only estimates the best-calibrated uncertainty with $ECE_{mAP@1}=0.171$, but also achieves the highest recognition performance with $r@1=0.613$.
 
 ## Reference
 
@@ -190,7 +219,7 @@ Since the teacher net and the student net share the same feature extractor archi
 
 [^14]: C.-Y. Wu, R. Manmatha, A. J. Smola, and P. Krahenbuhl, [Sampling matters in deep embedding learning](https://arxiv.org/abs/1706.07567), in Proceedings of the IEEE International Conference on Computer Vision, 2017, pp. 2840–2848.
 
-[^15]:
+[^15]: C. Guo, G. Pleiss, Y. Sun, and K. Q. Weinberger, [On calibration of modern neural networks](https://arxiv.org/abs/1706.04599), in International Conference on Machine Learning. PMLR, 2017, pp. 1321–1330
 
 [^16]:
 
