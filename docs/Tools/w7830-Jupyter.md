@@ -2,7 +2,7 @@
 
 ## Introduction
 
-You have setup the Python environment on your server, and you are about to access your Jupyter Notebook or Jupyter Lab on that. Wait what, you cannot access your Jupyter since is behind the *sshgate* or *firewall*. This tutorial will tell you how to create an `ssh` tunnel to a remote machine, and connect to this server from a browser running on your local machine to create and use jupyter notebook [^1].
+You have setup the Python environment on your server, and you are about to access your Jupyter Notebook or Jupyter Lab on that. Wait what, you cannot access your Jupyter since is behind the *sshgate* or *firewall*. This tutorial will tell you how to create an `ssh` tunnel to a remote machine, and connect to this server from a browser running on your local machine to create and use Jupyter Notebook [^1].
 
 ## Topology
 
