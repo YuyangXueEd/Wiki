@@ -34,7 +34,7 @@ Another framework of estimating aleatoric uncertainty, Assumed Density Function 
 
 ### Uncertainty in Related Tasks
 
-Taha et al. [^5][^6] casts triplet loss as trivariate regression loss and then uses the framework of [^1] to either learn aleatoric uncertainty or estimate model uncertainty using MC Dropout. However modified triplet loss function might lead to sub-optimal performance.
+Taha et al. [^5] [^6] casts triplet loss as trivariate regression loss and then uses the framework of [^1] to either learn aleatoric uncertainty or estimate model uncertainty using MC Dropout. However modified triplet loss function might lead to sub-optimal performance.
 
 BTL[^7] outperforms Taha's by deriving a likelihood for triplet loss, which is then used to train the network; but the proposed complex likelihood loss function requires more attention to assure the training convergence and cannot consistently achieve comparable recognition performance as a standard triplet metric learning method.
 

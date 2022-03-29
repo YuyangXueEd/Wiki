@@ -87,7 +87,7 @@ If you don't want your in memory cache expires too soon, you can set a time for 
 git config --global credential.helper 'cache --timeout=6480000'
 ```
 
-If you prefer to set the credential helper on a repository-specific basis, you can omit the '--global' flag.
+If you prefer to set the credential helper on a repository-specific basis, you can omit the `--global` flag.
 
 ### Using SSH keys
 
