@@ -1,3 +1,5 @@
+> First Update: 29, March, 2022
+
 ## Introduction
 
 When you using `git` on server, sometimes you will occasionally encounter problems such as:
@@ -96,6 +98,6 @@ There are many tutorials on putting your SSH public key in your GitHub account. 
 
 [^1]: [About authentication to GitHub: Authenticating with the command line](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-authentication-to-github#authenticating-with-the-command-line)
 
-[^2]: [Creating a personal access token] https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+[^2]: [Creating a personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
 
 [^3]: [Authenticating to Remote Git Repositories](https://statistics.berkeley.edu/computing/faqs/git-auth)
