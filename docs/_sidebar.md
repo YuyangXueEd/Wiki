@@ -6,6 +6,9 @@
 * Tools
 	* [Zotero Sync between Windows and Mac using Onedrive](Tools/Zotero-Onedrive.md)
 	* [Wiki Building: Obsidian + Docsify + Apple Cloud](Tools/ODA.md)
+<<<<<<< HEAD
 	* [Use Port Forward to Access Jupyter on Server](Tools/w7830-Jupyter.md)
 	* [Github Authentication on Server](Tools/git_auth.md)
+=======
+>>>>>>> parent of fbd2959 (add)
 	
