@@ -256,12 +256,75 @@ The single-coil classical baseline provided with the fastMRI dataset was adopted
 
 ![fast_tra_val.png](../../_media/fast_tra_val.png)
 
+### Single-coil Deep Learning Baselines (knee only)
 
+U-Net models and their variants have successfully been used for many image-to-image prediction tasks including MRI reconstruction and image segmentation.
 
+The U-Net single-coil baseline model included with the fastMRI data release consists of two deep convolutional networks, a down-sampling path followed by an up-sampling path. The down-sampling path consists of blocks of two $3\times 3$ convolutions each followed by instance normalisation and ReLU activation function. The blocks are interleaved by down-sampling operations consisting of max-pooling layers with stride 2 which halve each spatial dimension. The up-sampling path consists of blocks with a similar structure to the down-sampling path, interleaved with bilinear up-sampling layers which double the resolution between blocks. In contrast to the down-sampling path, the up-sampling path concatenates two inputs to the first convolution in each block: the up-sampled activations from the previous block, together with the activations that follow the skip connection from the block in the down-sampling path with the same resolution. At the end of the up-sampling path, we include a series of $1\times 1$ convolutions that reduce the number of channels to one without changing the spatial resolution.
 
+![fastMRI_unet.png](../../_media/fastMRI_unet.png)
 
+For the single-coil MRI reconstruction case, the zero-filled image is used as the input to the model. The zero-filled image is obtained by first inserting zeros at the location of all unobserved k-space values, applying a two-dimensional IFT to the result, and finally computing the absolute value. The result is center cropped to remove any readout and phase oversampling.
 
+The zero-filled image is given by $\tilde{m}=\mathcal{C}(|\mathcal{F}^{-1}(\mathcal{P}(y))|)$, where $\mathcal{C}$ is the linear operator corresponding to the centre cropping and $\mathcal{F}^{-1}$ is the two-dimensional IFT.
 
+The entire network is trained on the training data in an end-to-end manner to minimise the *mean absolute error* with respect to corresponding ground truth images. Let $B_\theta(m)$ be the function computed by the U-Net model, where $\theta$ represents the parameters of the model. Then the training process corresponds to the following optimisation problem:
+
+$$
+\underset{\theta}{\mathrm{minimise}}\frac12 \sum^{n_{data}}_{i=0}\|B_\theta(\tilde{m}^{(i)})-m^{(i)}\|_1
+$$
+
+where the ground truth $m^{(i)}$ are obtained using the ESC method. Our particular single-coil U-Net baseline model was trained on $973$ image volumes in the training set, using RMSProp. We used an initial learning rate of $0.001$, which was multiplied by $0.1$ after $40$ epochs, after which the model was trained for an additional 10 epochs. During training, we randomly sampled a different mask for each training example in each epoch independently using the protocol for the test data. At the end of each epoch, we recorded the NMSE on the validation data. After training, we picked the model that achieved the lowest validation NMSE.
+
+![fastMRI_unet_training.png](../../_media/fastMRI_unet_training.png)
+
+These results indicate that the trained U-Net models perform significantly better than the classical baseline method. The best U-Net models obtain 40-50% relative improvement over the classical methods in terms of NMSE.
+
+The performance of the U-Net models continues to increase with increasing model capacity. These improvements begin to saturate after 50 million parameters for the simpler 4-fold acceleration case. However, for the more challenging 8-fold acceleration task, the largest model performs significantly better than the smaller models.
+
+![fastMRI_unet_val.png](../../_media/fastMRI_unet_val.png)
+
+![fastMRI_knee_examples.png](../../_media/fastMRI_knee_examples.png)
+
+### Multi-coil Classic Baselines
+
+### Multi-coil Deep Learning Baselines
+
+## Disscussion
+
+Contrary to many computer vision problems where small texture changes might not necessarily alter the overall satisfaction of the observer, in MRI reconstruction, extra care should be taken to ensure that the human interpreter is not misled by a very plausible but not necessarily correct reconstruction. Therefore some research effort should be devoted to look for solutions that, by design, ensure correct diagnosis, and we hope that our dataset will provide a testbed for new ideas in these directions as well.
+
+A natural question arises: what would the optimal metric be? An ideal MRI reconstruction algorithm should produce sharp, trustworthy images, that ultimately ensure the proper radiologic interpretation.
+
+Extending the results from methods developed for this challenge to the clinic remains an open problem, but we believe the provision of this dataset is an important first step on the path to this goal.
+
+## Raw k-space File Descriptions
+
+`ISMRMRD` files were converted into simpler `HDF5` files that store the entire k-space in a single tensor. One `HDF5` file was created per volume. The `HDF5` files share the following common attributes:
+
+- *acquisition*: Acuisition protocol.
+	- Knee: `CORPD` or `CORPDF`
+	- Brain: `AXFLAIR`, `AXT1`, `AXT1POST` or `AXT2`
+- *ismrmrd_header*: The XML header from the `ISMRMRD` file that was used to generate the `HDF5` file
+- *patient_id*: A unique string identifying the examination
+- *norm, max*: The Euclidean norm and the largest entry of the target volume.
+	- single: the target volume is stored in `reconstruction esc`
+	- multi: the target volume is stored in `reconstruction rss`
+- *acceleration*: Acceleration factor of the undersampled k-space trajectory (either 4 or 8). Only available in the test dataset.
+- *num low frequency*: The number of low-frequency k-space lines in the undersampled k-space trajectory. This attribute is only available in the test dataset.
+
+### Single-coil Track
+
+- *knee singlecoil train.tar.gz*: Training dataset for the single-coil track.
+	- *kspace*: Emulated single-coil k-space data. The shape of the kspace tensor is `(number of slices, height, width)``.
+	- *reconstruction_rss*: root-sum-of-squares reconstruction of the multi-coil k-space that was used to derive the emulated single-coil k-space cropped to the centre$320 \times 320$ region. The shape of the reconstruction rss tensor is `(number of slices, 320, 320)`.
+	- *reconstruction_esc*: The inverse Fourier transform of the single-coil k-space data cropped to the centre $320 \times 320$ region. The shape of the reconstruction esc tensor is `(number of slices, 320, 320)`.
+- *knee singlecoil val.tar.gz*: Validation dataset for the single-coil track. The HDF5 files have the same structure as the HDF5 files in *singlecoil train.tar.gz*.
+- *knee singlecoil test.tar.gz*": Test dataset for the single-coil track. Note that only the knee dataset has a single-coil track. The HDF5 files contain the following tensors:
+	- *kspace*: Undersampled emulated single-coil k-space. The shape of the kspace tensor is `(number of slices, height, width)`.
+	- *mask*: Defines the undersampled Cartesian k-space trajectory. The number of elements in the mask tensor is the same as the width of k-space.
+
+### Multi-coil Track
 
 
 
