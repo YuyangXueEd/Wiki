@@ -1,6 +1,7 @@
 * [Home](README.md)
 * Academic
 	* [MRI Reconstruction](MRI/MRI_Recon_ReadingList.md)
+		* [A List of Public MRI Dataset](MRI/Dataset/Dataset_List.md)
 	* [Uncertainty](Uncertainty/Uncertainty_Readinglist.md)
 	* [ML Model Collections](Model/Model_Readinglist.md)
 * Tools

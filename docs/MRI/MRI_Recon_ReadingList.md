@@ -12,4 +12,4 @@
 
 ## Dataset
 
-1. 
+1. J. Zbontar _et al._, [fastMRI: An Open Dataset and Benchmarks for Accelerated MRI](MRI/Dataset/fastMRI.md), Dec. 2019, Accessed: Apr. 01, 2022. [Online]. Available: [http://arxiv.org/abs/1811.08839](http://arxiv.org/abs/1811.08839)
