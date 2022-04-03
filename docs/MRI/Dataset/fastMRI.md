@@ -176,7 +176,85 @@ When the acceleration factor equals four, the fully-sampled central region inclu
 
 ## Metrics
 
+The most commonly used evaluation metrics in the MRI reconstruction include *mean square error*, and *signal-to-noise ratio*, which measures the degree to which image information rises above background noise. These metrics are appealing because they are easy to understand and efficient to compute. However, they both evaluate pixels independently, ignoring the overall image structure.
 
+Additional metrics have been introduced in the literature to capture structural distortion. For example, the *structural similarity index* and its extended version, *multiscale structural similarity*, provide a mechanism to assess the perceived quality of an image using local image patches.
+
+The most recent development in CV leverage pretrained DNN to measure the perceptual quality of an image by computing differences at the representation level, or by means of a downstream task such as classification.
+
+### NMSE
+
+The NMSE between a reconstructed image or image volume represented as a vector $\hat{v}$ and a reference image or volume $v$ is defined as:
+
+$$
+\mathrm{NMSE}(\hat{v}, v) = \frac{\|\hat{v}-v\|_2^2}{\|v\|_2^2}
+$$
+
+We report NMSE values computed and normalised over full image volumes rather than individual slices, since image-wise normalisation can result in strong variations across a volume.
+
+The downsides such as a tendency to favour smoothness rather than sharpness.
+
+### Peak Signal-to-Noise Ratio (PSNR)
+
+$$
+\mathrm{PSNR}(\hat{v}, v)=10 \log_{10}\frac{\max(v)^2}{\mathrm{MSE}(\hat{v}, v)}
+$$
+
+Higher values of PSNR (as opposed to lower values of NMSE) indicate a better reconstruction.
+
+### Structural Similarity
+
+SSIM index measures the similarity between two images by exploiting the inter-dependencies among nearby pixels. SSIM is inherently able to evaluate structural properties of the objects in an image and is computed as different image locations by using a sliding window. The resulting similarity between two image patches $\hat{m}$ and $m$ is defined as:
+
+$$
+\mathrm{SSIM}(\hat{m}, m) = \frac{(2\mu_\hat{m}\mu_m+c_1)(2\sigma_{\hat{m} m} + c_2)}{(\mu^2_\hat{m}+\mu^2_m+c_1)(\sigma^2_\hat{m}+\sigma^2_m+c_2)}
+$$
+
+where $\mu_\hat{m}$ and $\mu_m$ are the average pixel intensities, and $\sigma^2_\hat{m}$ and $\sigma^2_m$ are their variances, $c_1$ and $c_2$ are two variables to stabilize the division.
+
+### L1 Error
+
+$$
+\mathrm{L}_1(\hat{v},v)=\|\hat{v}-v\|_1
+$$
+
+## Baseline Models
+
+we detail two reference approaches to be used as reconstruction baselines: a classical non-machine learning approach, and a deep-learning approach.
+
+The "classical" baselines are comprised of reconstruction methods developed by the MRI community over the last 30+ years. These methods have been extensively tested and validated, and many have demonstrated robustness sufficient for inclusion in the clinical workflow.
+
+### Single-coil Classical Baseline (knee only)
+
+The sparse reconstruction approach consists of finding an image $m$ whose Fourier space representation is close to the measured k-space matrix $y$ at all measured spatial frequencies, yet at the same time minimises a sparsity-inducing objective $R(m)$ that penalizes unnatural reconstructions:
+
+$$
+\underset{m}{\mathrm{minimise}}\ R(m) s.t. \|\mathcal{P}(\mathcal{F}(m))-y\|^2_2 \leq \epsilon
+$$
+
+For a convex regulariser $R$, there exists, for any choice $\epsilon >0$, a value $\lambda$ such that these two formulations have equivalent solutions. The most common regularisers used for MRI are:
+
+$$
+R_{L_1}=\|m\|_1
+$$
+$$
+R_{wavelet}(m)=\|\Psi(m)\|_1,\ \ \Psi\mathrm{\ is\ a\ discrete\ wavelet\ transform }
+$$
+$$
+R_{TV}(m)=\sum_{i,j}\sqrt{|m_{i+1,j}-m_{i,j}|^2+|m_{i,j+1}-m_{i,j}|^2}
+$$
+
+![fastMRI_scr.png](../../_media/fastMRI_scr.png)
+
+- The $L_11$ penalty works best when the MR images are sparse in image space, for instance in vascular imaging
+- The total variation (TV) penalty encourages sparsity in the spatial gradients of the reconstructed image, as given by a local finite-difference approximation
+	- TV regulariser can be very effective for some imaging protocols, but it also has a tendency to remove detail
+- The $R_{wavelet}$ penalty encourages sparsity in the discrete wavelet transform of the image.
+	- Most natural images exhibit significant sparsity when expressed in a wavelet basis. The most commonly used transform is the Multiscale Daubechies (DB2) transform
+
+The single-coil classical baseline provided with the fastMRI dataset was adopted from the widely-used open-source BART [^2] toolkit, using total variation as the regulariser. We ran the optimisation algorithm for 200 iterations on each slice independently.
+
+![fast_tra_val.png](../../_media/fast_tra_val.png)
 
 
 
@@ -190,3 +268,5 @@ When the acceleration factor equals four, the fully-sampled central region inclu
 ## Reference
 
 [1]: Souheil J Inati, Joseph D Naegele, Nicholas R Zwart, Vinai Roopchansingh, Martin J Lizak, David C Hansen, Chia-Ying Liu, David Atkinson, Peter Kellman, Sebastian Kozerke, et al. [ISMRM raw data format: a proposed standard for MRI raw datasets](https://www.opensourceimaging.org/project/ismrmrd). Magnetic resonance in medicine, 77(1), 2017.
+
+[^2]: Martin Uecker, Patrick Virtue, Frank Ong, Mark J. Murphy, Marcus T. Alley, Shreyas S. Vasanawala, and Michael Lustig. [Software toolbox and programming library for compressed sensing and parallel imaging](https://mrirecon.github.io/bart/). In ISMRM Workshop on Data Sampling and Image Reconstruction, 2013.
