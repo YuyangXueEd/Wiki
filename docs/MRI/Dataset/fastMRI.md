@@ -82,7 +82,7 @@ The DICOM images may be useful as additional data for training. Their distributi
 
 ### Anonymisation
 
-Raw data was anonymised via conversion to the vendor-neutral ISMRMRD [^1] format, with manual checking of metadata in raw data files, as well as spot checking of all metadata and image content.
+Raw data was anonymised via conversion to the vendor-neutral ISMRMRD [^1]  format, with manual checking of metadata in raw data files, as well as spot checking of all metadata and image content.
 
 DICOM data was anonymised using the RSNA clinical trial. processor. Each DICOM image is performed manual inspection for the presence of unexpected protected health information (PHI).
 
@@ -290,7 +290,7 @@ The performance of the U-Net models continues to increase with increasing model 
 
 ### Multi-coil Deep Learning Baselines
 
-## Disscussion
+## Discussion
 
 Contrary to many computer vision problems where small texture changes might not necessarily alter the overall satisfaction of the observer, in MRI reconstruction, extra care should be taken to ensure that the human interpreter is not misled by a very plausible but not necessarily correct reconstruction. Therefore some research effort should be devoted to look for solutions that, by design, ensure correct diagnosis, and we hope that our dataset will provide a testbed for new ideas in these directions as well.
 
@@ -305,20 +305,20 @@ Extending the results from methods developed for this challenge to the clinic re
 - *acquisition*: Acuisition protocol.
 	- Knee: `CORPD` or `CORPDF`
 	- Brain: `AXFLAIR`, `AXT1`, `AXT1POST` or `AXT2`
-- *ismrmrd_header*: The XML header from the `ISMRMRD` file that was used to generate the `HDF5` file
 - *patient_id*: A unique string identifying the examination
 - *norm, max*: The Euclidean norm and the largest entry of the target volume.
 	- single: the target volume is stored in `reconstruction esc`
 	- multi: the target volume is stored in `reconstruction rss`
-- *acceleration*: Acceleration factor of the undersampled k-space trajectory (either 4 or 8). Only available in the test dataset.
-- *num low frequency*: The number of low-frequency k-space lines in the undersampled k-space trajectory. This attribute is only available in the test dataset.
+- *acceleration*: Acceleration factor of the undersampled k-space trajectory (either 4 or 8). *Only available in the test dataset*.
+- *num low frequency*: The number of low-frequency k-space lines in the undersampled k-space trajectory. *This attribute is only available in the test dataset*.
 
 ### Single-coil Track
 
 - *knee singlecoil train.tar.gz*: Training dataset for the single-coil track.
-	- *kspace*: Emulated single-coil k-space data. The shape of the kspace tensor is `(number of slices, height, width)``.
-	- *reconstruction_rss*: root-sum-of-squares reconstruction of the multi-coil k-space that was used to derive the emulated single-coil k-space cropped to the centre$320 \times 320$ region. The shape of the reconstruction rss tensor is `(number of slices, 320, 320)`.
+	- *kspace*: Emulated single-coil k-space data. The shape of the kspace tensor is `(number of slices, height, width)`.
+	- *reconstruction_rss*: root-sum-of-squares reconstruction of the multi-coil k-space that was used to derive the emulated single-coil k-space cropped to the centre $320 \times 320$ region. The shape of the reconstruction rss tensor is `(number of slices, 320, 320)`.
 	- *reconstruction_esc*: The inverse Fourier transform of the single-coil k-space data cropped to the centre $320 \times 320$ region. The shape of the reconstruction esc tensor is `(number of slices, 320, 320)`.
+	- *ismrmrd_header*: The XML header from the `ISMRMRD` file that was used to generate the `HDF5` file
 - *knee singlecoil val.tar.gz*: Validation dataset for the single-coil track. The HDF5 files have the same structure as the HDF5 files in *singlecoil train.tar.gz*.
 - *knee singlecoil test.tar.gz*": Test dataset for the single-coil track. Note that only the knee dataset has a single-coil track. The HDF5 files contain the following tensors:
 	- *kspace*: Undersampled emulated single-coil k-space. The shape of the kspace tensor is `(number of slices, height, width)`.
@@ -330,6 +330,6 @@ Extending the results from methods developed for this challenge to the clinic re
 
 ## Reference
 
-[1]: Souheil J Inati, Joseph D Naegele, Nicholas R Zwart, Vinai Roopchansingh, Martin J Lizak, David C Hansen, Chia-Ying Liu, David Atkinson, Peter Kellman, Sebastian Kozerke, et al. [ISMRM raw data format: a proposed standard for MRI raw datasets](https://www.opensourceimaging.org/project/ismrmrd). Magnetic resonance in medicine, 77(1), 2017.
+[^1]: Souheil J Inati, Joseph D Naegele, Nicholas R Zwart, Vinai Roopchansingh, Martin J Lizak, David C Hansen, Chia-Ying Liu, David Atkinson, Peter Kellman, Sebastian Kozerke, et al. [ISMRM raw data format: a proposed standard for MRI raw datasets](https://www.opensourceimaging.org/project/ismrmrd). Magnetic resonance in medicine, 77(1), 2017.
 
 [^2]: Martin Uecker, Patrick Virtue, Frank Ong, Mark J. Murphy, Marcus T. Alley, Shreyas S. Vasanawala, and Michael Lustig. [Software toolbox and programming library for compressed sensing and parallel imaging](https://mrirecon.github.io/bart/). In ISMRM Workshop on Data Sampling and Image Reconstruction, 2013.
