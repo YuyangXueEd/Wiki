@@ -95,7 +95,187 @@ Examples in the test and challenge sets contain undersampled k-space data. The u
 
 ## Data Manipulation
 
+### `fastmri.data.mri_data`
+
+#### `et_query`
+
+This function can be used to query a xml document via `ElementTree`, and uses `qlist` for nested queries. We can use this to read `hdf5` files for each sample.
+
+#### `fetch_dir`
+
+Set `data_config_file` for the project. Simply overwrite the variables for `knee_path` and `brain_path` and this function will retrieve the requested subsplit of the data for use.
+
+
+#### `CombinedSliceDataset`
+
+A container for combining slice datasets.
+
+Parameters:
+- *roots*: paths to the datasets
+- *challenges*: `singlecoil` or `multicoil`
+- *transforms*: A sequence of callable objects that preprocesses the raw data into appropriate form. The transform function should take `kspace`, `target`, `attributes`, `filename`, and `slice` as inputs.
+- *sample_rates*: A sequence of floats between $0$ and $1$. This controls what fraction of the slices should be loaded. Sample by slices.
+- *volume_sample_rates*: A sequence of floats between $0$ and $1$. This controls what fraction of the volumes should be loaded. Sample by volumes.
+- *use_dataset_cache*: Whether to cache dataset metadata. Useful for large datasets like the brain data.
+- *dataset_cache_file*:A file in which to cache dataset information for faster load times.
+- *num_cols*: if provided, only slices with the desired number of columns will be considered.
+
+The Lengths of *roots*, *transforms*, *challenges*, *sample_rates* should be matched.
+
+#### `SliceDataset`
+
+A PyTorch Dataset that provides access to MR image slices. The parameters are pretty much the same as `CombinedSliceDataset`. 
+
+A static function `_retrieve_metadata` can get metadata from `hdf5` files, and it give the shape and padding information.
+
+#### `AnnotatedSliceDataset`
+
+A PyTorch Dataset that provides access to MR image slices with annotation. Not very useful for reconstruction tasks.
+
+### `fastmri.data.subsample`
+
+#### `MaskFunc`
+
+An object for GRAPPA-style sampling masks. This creates a sampling mask that densely samples the centre while subsampling outer k-space regions based on the undersampling factor.
+
+When called, `MaskFunc` uses internal functions to create mask by:
+1. creating a mask for the k-space centre,
+2. create a mask outside of the k-space centre
+3. combining them into a total mask.
+
+Parameters:
+- *center_fractions*: Fraction of low-frequency columns to be retained. If multiple values are provided, then one of these number is chosen uniformly each time.
+- *accelerations*: Amount of under-sampling.
+- *allow_any_combination*: whether to allow cross combinations of elements from *center_fractions* and *accelerations*.
+- *seed*: random number generator
+
+Functions:
+
+- *sample_mask*: Using `shape` and `offset` as input to return two components of a k-space mask, both the centre mask and the acceleration mask.
+	- `num_low_frequencies = round(num_cols * center_fraction`
+- *reshape_mask*: Reshape mask to desired output shape
+- *calculate_acceleration_mask*
+- *calculate_center_mask*: Using `shape` and `num_low_freqs` as input to build centre mask based on number of low frequencies.
+
+#### `RandomMaskFunc`
+
+To create a random sub-sampling mask of a given shape. A subclass of `MaskFunc`.
+
+For example, if `accelerations =[4,8]` and `center_fractions = [0.08, 0.04]`, then there is a $50\%$ probability that 4-fold acceleration with $8\%$ centre fraction is selected and $50\%$ probability that 8-fold acceleration with $4\%$ centre fraction is selected.
+
+#### `EquiSpacedMaskFunc`
+
+Return an equally-spaced k-space mask.
+
+#### `EquispacedMaskFractionFunct`
+
+Equispaced mask with approximate acceleration matching.
+
+#### `MagicMaskFunc`
+
+Masking function for exploiting conjugate symmetry via offset-sampling.
+
+#### `MagicMaskFractionFunc`
+
+Similarly, this method exactly matches the target acceleration by adjusting the offsets.
+
+### `fastmri.data.transforms`
+
+#### `to_tensor`
+
+Convert numpy array to PyTorch tensor. For complex arrays, the real and imaginary parts are stacked along the last dimension.
+
+#### `tensor_to_complex_np`
+
+Converts a complex torch tensor to numpy array.
+
+#### `apply_mask`
+
+Subsample given k-space by multiplying with a mask.
+
+Parameters:
+- *data*: the input k-space data, as least 3 dimensions, where dimensions `-3` and `-2` are the spatial dimensions, and the final dimension has size 2 (for complex values).
+- *mask_func*: A function that takes a shape and a random number seed and returns a mask
+- *seed*
+- *padding*: Padding value to apply for mask
+
+Returns:
+- masked data: sampled k-space data
+- mask: the generated mask
+- num_low_frequencies
+
+#### `mask_centre`
+
+Initialises a mask with the centre filled in.
+
+#### `batched_mask_center`
+
+Initialises a mask with the centre filled in. Can operate with different masks for each batch element.
+
+#### `center_crop`
+
+Apply a centre crop to the input real image or batch of real images.
+
+#### `complex_center_crop`
+
+Apply a centre crop to the input image or batch of complex images.
+
+#### `center_crop_to_smallest`
+
+Apply a centre crop on the larger image to the size of the smaller.
+
+#### `UnetSample`
+
+A subsampled image for U-Net reconstruction.
+
+### `fastmri.data.volume_sampler`
+
+#### `VolumeSampler`
+
+Sampler for volumetric MRI data. Based on PyTorch `DistributedSample`, the difference is that all instances from the same MRI volume need to go to the same node for distributed training.
+
+`dataset` example is a list of tuples `(fname, instance)`, where `fname` is the file name.
+
+Parameters:
+
+- *dataset*: An MRI dataset (e.g. `SliceData`)
+- *num_replicas*: Number of processes participating in distributed training.
+- *rank*: Rank of the current process within `num_replicas`.
+- *shuffle*
+- *seed*
+
+### `fastmri.utils`
+
+#### `save_reconstructions`
+
+Save reconstruction images in h5 files.
+
+### `fastmri.losses`
+
+#### `SSIMLoss`
+
+### `fastmri.evaluate`
+
+- `mse`: Compute Mean Squared Error
+- `nmse`: Compute Normalised Mean Squared Error
+- `psnr`: Compute Peak Signal to Noise Ratio metric 
+- `ssim`: Compute Structural Similarity Index Metric
+- `evaluate`: Using `Metrics` class to evaluate reconstruction images.
+
+#### `Metrics`
+
+### `fastmri.fftc`
+
+- *fft2c_new*: Apply centred 2d FFT
+- *ifft2c_new*: Apply centred 2d IFFT
+- *fftshift*: Similar to `np.fft.fftshift` but applies to PyTorch tensors
+- *ifftshift*: Similar to `np.fft.ifftshift` but applies to PyTorch tensors
+
 ## Baseline Models
+
+### U-Net
+
+
 
 ## Reference
 
