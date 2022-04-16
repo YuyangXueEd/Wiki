@@ -388,6 +388,88 @@ Training in such scenarios can also be done in with more realistic datasets with
 
 ![physic_lgea.png](../../_media/physic_lgea.png)
 
+### Inverse Problems in MRI with non-linear forward models
+
+A neural network mapping $f_{\mathrm{NM}}(x,\theta):x\rightarrow \vartheta$ is learned either in a supervised setup:
+
+$$
+\underset{\theta}{\arg\min}\mathbb{E}_x\|\mathcal{E}(f_{\mathrm{NM}}(x,\theta))-y\|^2_2+\lambda\mathbb{E}_x\|f_{\mathrm{NM}}(x,\theta)-\vartheta\|^2_2
+$$
+
+or in an unsupervised setup:
+
+$$
+\underset{\theta}{\arg\min}\mathbb{E}_x\|\mathcal{E}(f_{\mathrm{NM}}(x,\theta))-y\|^2_2 + \sum_i \lambda_i \mathcal{R}_i(f_{\mathrm{NM}}(x,\theta))
+$$
+
+where $\mathcal{R}_i(\cdot)$ are conventional regularisers that are not based on reference data, such as spatial total variation. In the following, we will expand on some applications for which non-linear forward models are beneficial.
+
+#### Relaxivity mapping
+
+MRI allows for quantitative measurements of inherent tissue parameters ($T_1, T_2, T^*_2, T_{1\rho}$), which is often referred to as relaxivity or quantitative mapping. 
+
+Research developments have contributed towards the goal of retrieving multiple parametric maps from a single scan. A model-based reconstruction in these cases eliminates the need for reconstructing individual images along the relaxivity curve, and the employed model acts as an intrinsic regulariser for the reconstruction.
+
+However, model-based reconstruction methods have prolonged reconstruction times compared to reconstruction of individual images followed by a parametric fitting, which hinders their clinical translation.
+
+In the setting of DL, physics information has primarily been incorporated to the loss function during training. Recently, networks that reflect low-rank subspace constraints have been proposed [^24].
+
+Generative models have also been studies to synthesise signal evolutions suited for model-based reconstructions [^25] or by extending the loss composition for more realistic estimations [^26].
+
+#### Susceptibility mapping
+
+First works incorporated the physical principles of the dipole inversion model that describes the susceptibility-phase relationship into the loss function during neural network training [^27]. Later works optimised the parameters in an unrolled gradient descent algorithm for nonlinear dipole inversion [^28][^29].
+
+The idea of fine-tuning pre-trained network weights on a scan-specific basis using the physics model was proposed [^30], similar to the loss function without the additional regularisers.
+
+#### Flow, perfusion and contrast-enhanced MRI
+
+Flow imaging is used to measure blood velocities in the circulatory system, but requires considerable acquisition time. The DL methods enforce fidelity to the physical model in the losses to a known ground-truth [^31], or incorporated the physics of fluid flow by solving the partial differential equations via automatic differentiation in back-propagation.
+
+Perfusion techniques provide ways to model blood flow often via the use of a kinetic model, but suffer from low-resolution or low signal-to-noise ratio acquisitions. Physics-driven methods incorporating the kinetic model to the loss function has been proposed [^32].
+
+Estimation of pharmacokinetic parameters from dynamic contrast-enhanced MRI by residual learning using the physical forward model [^33] was also proposed for faster parameter inference.
+
+#### Motion
+
+In addition to various prospective motion triggering, gating or correction methods, motion can be retrospectively modelled into the forward model and can thus be considered inside a motion-compensated/corrected reconstruction [^34]. 
+
+These methods perform two fundamental operations: image registration and image reconstruction. Hence, they require reliable motion-resolved images from which the motion can be estimated. Motion field estimation can be controlled or supported by external motion surrogate signals or intial motion field estimates.
+
+LAPNet formulates non-rigid registration directly in k-space [^35], inspired by the optical flow formulation. The estimated motion fields are then used to enhance the data consistency and exploit the information of all motion resolved states to reconstruct images of the body trunk.
+
+In the context of coronary MRI, a motion-informed MoDL network was proposed [^36], using diffeomorphic motion fields estimated from the zero-filled images using a UNet and subsequent scaling and squaring layer. These motion fields are then embedded into the data consistency layer, solved via the conjugate gradient algorithm as in MoDL. The network is unrolled for 3 iterations, with intermittent denoising networks. The full model is trained using a reconstruction loss and a motion estimation loss.
+
+For dynamic MR images, the whole temporal information was explited by embedding motion-estimation UNets directly in the data consistency layers of an unrolled network architecture [^37]. Hence, both reconstruction and motion estimation improve during as the motion-estimation networks rely on the reconstructions of the previous unrolled iteration. 
+
+Further approaches achieved motion correction by rejecting motion-affected k-space lines [^38] or subspace-constrained regularisation [^39]. A motion estimation network is embedded in a Bachelory-type reconstruction for Cartesian cine imaging [^40].
+
+![physic_motion.png](../../_media/physic_motion.png)
+
+## Discussion
+
+### Issues and open problems
+
+During the early stages of the developments, access to raw MRI k-space training data was a major limiting factor that held the field back. The availability of open databases has largely removed this obstacle and public research challenges have also helped to compare developed approaches on standardised datasets. 
+
+DL models generally outperform handcrafted regularisers in iterative image reconstruction in terms of quantitative metrics like SSIM, PSNR and RMSE, their performance in the regime of over-regularisation is challenging to assess. The results of classic regularisers like Tikhonov, total variation or $l_1$-wavelets in this scenario can be interpreted much easier by end-users. 
+
+A solution is to move from qualitative image assessment towatds the assessment of clinical outcomes. Conducting such clinical studies is slow and costly, which requires follow-ups with pathology or surgery departments.
+
+Research challenges are also limited in terms of their ability to assess model generalisation. In light of the substantial range of imaging parameters that can be changed during an MRI acquisition, it is still an open question if deep learning models should serve a general purpose role, or if specialised models should be tailored to a more narrow range of imaging settings for dedicated exams.
+
+### Domain-specific knowledge in post-processing and multi-task imaging
+
+The imaging pipeline starts with data acquisition, followed by image reconstruction. The reconstructed image is then further analysed using post-processing tasks, image segmentation, and quantitative evaluation, and/or methods for diagnosis and treatment planning are applied to facilitate medical decisions.      
+
+Most work on solving multiple tasks jointly has been conducted in the field of motion-corrected image reconstruction. In [^41], joint motion detection, correction and segmentation was proposed.      
+
+A unified network for joint MRI reconstruction and segmentation was also proposed [^42].
+
+Another interesting line of work incorporates domain knowledge into other post-processing tasks. In deformable image registration, data similarity was embedded in an unrolled gradient-descent network [^43]. This approach only requires the similarity measure to be differentiable.
+
+
+
 
 
 
@@ -438,3 +520,5 @@ Training in such scenarios can also be done in with more realistic datasets with
 [^22]: T. Ku ̈stner, N. Fuin, et al., “CINENet: deep learning-based 3D cardiac CINE MRI reconstruction with multi-coil complex-valued 4D spatio-temporal convolutions,” Sci Rep, vol. 10, no. 13710, 2020.
 
 [^23]: Z. Huang, J. Bae, et al., “A Simulation Pipeline to Generate Realistic Breast Images for Learning DCE-MRI Reconstruction,” Machine Learning for Medical Image Reconstruction, vol. 12964, 2021.
+
+[^24]: Y. Li, Y. Wang, et al., “Deep learning–enhanced t1 mapping with spatial-temporal and physical constraint,” Magnetic Resonance in Medicine, vol. 86, no. 3, pp. 1647–1661, 2021.
