@@ -303,10 +303,90 @@ Like generative models based on DIP, there has been interest in training unrolle
 
 A major challenge for training unrolled networks is their large memory footprint. Recently, this was tackled with the development of memory-efficient learning schemes [^20]. In memory-efficient learning, intermediate outputs from each unrolled iteration are stored on host memory during forward pass, and back-propagation gradients are computed using this intermediate data and gradients from the proceeding step.
 
-Another alternative for handling the large memory footprint of unrolled networks is deep equilibrium networks [^21]. These networks solve a fixed point equation for an operator corresponding to a single unroll, which leads to two advantages for training. First, only one unroll has to be stored during training, leading to a small memory usage. Second, the coverage behavior for different values of $N_t$ during inference is more well-behaved compared to unrolled networks, which are designed to achieve maximal performance for a specific value of $N_t#. On the other hand, deep equilibrium network are run until convergence and do not have fixed inference time unlike unrolled networks, which may not be ideal in clinical applications.
+Another alternative for handling the large memory footprint of unrolled networks is deep equilibrium networks [^21]. These networks solve a fixed point equation for an operator corresponding to a single unroll, which leads to two advantages for training. First, only one unroll has to be stored during training, leading to a small memory usage. Second, the coverage behavior for different values of $N_t$ during inference is more well-behaved compared to unrolled networks, which are designed to achieve maximal performance for a specific value of $N_t$. On the other hand, deep equilibrium network are run until convergence and do not have fixed inference time unlike unrolled networks, which may not be ideal in clinical applications.
 
 ## SOTA in MRI Practice and Domain-Specific Challenges
 
+### Real vs. Complex building blocks
+
+As complex-valued data is used in computational MRI, this has to be considered in the network processing pipeline, not only during data consistency, but also in the network blocks itself. 
+
+Two processing modes are possible:
+
+1. Real/Imaginary or magnitude/phase are considered in two input channels stacked via the feature dimension
+2. Complex-valued operations are performed on complex-valued tensor.
+
+Complex-valued operations maintain the complex nature of the data, but some operations require twice the amount of trainable parameters.
+
+If complex-valued layers and tensors are involved, complex back-propagation following Wirtinger calculus has to be considered, which is supported in most recent frameworks.
+
+![physic_wirtinger.png](../../_media/physic_wirtinger.png)
+
+#### Convolution
+
+The discrete convolution maps the $N_{f, \mathrm{in}}$ input feature channels to $N_{f,\mathrm{out}}$ output feature channels of an image $x \in \mathbb{K}$ with filter kernels $k_{i,j} \in \mathbb{K}$ via:
+
+$$
+\hat{x}_j = \sum^{N_{f,\mathrm{i}}}_{i=1}x_i * k_{i,j}\ \ j=1,\dots,N_{f,\mathrm{out}}
+$$
+
+where the subscripts denote the feature channels. For complex-valued convolutions it is $\mathbb{K=C}$, the convolution operation is extended to:
+
+$$
+x_i * k_{i,j}=(Re(x_i)*Re(k_{i,j})-Im(x_i)*Im(k_{i,j}))+i\cdot(Im(x_i)*Re(k_{i,j})+Re(x_i)*Im(k_{i,j}))
+$$
+
+#### Activation
+
+The impact on magnitude and phase information needs to be considered. On possibility is to apply the activation function to the real an imaginary part separately as separable activations, however, the natural correlation between real and imaginary channels are not considered in this case.
+
+Furthermore, phase information is mapped to the first quadrant, i.e., the interval $[0, \frac \pi 2]$. Alternative approaches have been proposed that retain phase information, for example siglog. 
+
+As another option, the phase information can be fixed and only the magnitude information is altered by the activation. An example therefor is the *ModReLU*:
+
+$$
+\phi_{\mathrm{ModReLU}}(x)=\max(0, |x|+\beta)\frac x {|X|}
+$$
+
+where $\beta$ is the bias that is trainable. A new complex activation function called *Cardioid* was also proposed for processing:
+
+$$
+\phi_{\mathrm{Cardioid}}(x)=\frac12 (1+\cos(\angle x+\beta))x
+$$
+
+The complex cardioid can be seen as a generalisation of ReLU activation functions to the complex plane. A bias $\beta$ can be additionally learned.
+
+#### Normalisation
+
+Adding normalisation layers (batch, instance or layer/group normalisation) directly after convolution layers are a common way to enable faster and more stable training of networks. Statistics are estimated from the input and used to re-parametrise the input.
+
+Complex-valued normalisation layers require to estimate the normalisation via the covariance matrix and are straight-forward to implement. The subsequent layers are less tolerant to changes in previous layers. The selection of the normalisation layer is task dependent. Although normalisation layers are often important to train a network, they might lead to unwanted artifacts for image restoration tasks.
+
+#### Pooling
+
+For complex-valued images, the maximum operation does not exist. Instead, the pooling layer is modified such that it keeps values with, e.g., the maximum magnitude response.
+
+### Canonical MRI reconstruction with the linear forward model
+
+Physics-driven MRI deep learning method have become the most popular approach in computational MRI due to their improved robustness. Indeed, the difference between the state-of-the-art algorithms for the fastMRI challenge is hardly visible for the different undersampling factors. These algorithms have in common that data consistency is included, and expressive regularisation networks are used. 
+
+However, even physics-driven DL methods face some challenges for accelerated MRI. The impact of domain shift, i.e., training and testing on different data was studied, for different acceleration factors.
+
+While for acceleration $4$, the proposed Down-Up networks with varying data consistency layers generalise well for both anatomies, the type and amount of training data becomes more critical for acceleration factor $8$.
+
+Since fewer data is available for data consistency at this acceleration, the network start to reconstruct anatomical structures that are not real. When trained on a subset of knee data and applied to neuro data, the ventricles start resembling knee structures:
+
+![physic_acc.png](../../_media/physic_acc.png)
+
+All previously mentioned approaches consider the complex-valued MR images as images with two real-valued feature channels. CINENet [^22] combined both data consistency layers with complex-valued building blocks for dynamic 3D $(3D + t)$ data. These complex-valued building blocks include convolutions, activations, pooling, and normalisation layers. To process the $3D+t$ in the regularisation network, convolution operations are split into 3D spatial convolutions, followed by $1D$ temporal convolutions.
+
+![physic_CINENet.png](../../_media/physic_CINENet.png)
+
+Dynamic contrast-enhanced MRI (DCE-MRI) represents one such challenging acquisition, where k-space data is acquired continuously while contrast agent been injected to the patient. The dynamic distribution of the contrast agent causes the image contrast dynamics, hence, both the k-space and image are time-series. In this setting, a variational network was trained on simulated data with radial k-space trajectories, as fully sampled dataset with both high spatial and temporal resolution was infeasible to acquire [^23].
+
+Training in such scenarios can also be done in with more realistic datasets without resorting to simulations. For instance, in another contrast-based cardiac acquisition, called *late gadolinium enhancement imaging*, unrolled networks have been trained using prospectively accelerated acquisitions without reference data, and were shown to improve on clinically used compressed sensing methods, doubling the achieable acceleeration rates.
+
+![physic_lgea.png](../../_media/physic_lgea.png)
 
 
 
@@ -354,3 +434,7 @@ Another alternative for handling the large memory footprint of unrolled networks
 [^20]: M. Kellman, K. Zhang, et al., “Memory-efficient learning for large-scale computational imaging," IEEE Trans Comp Imaging, vol. 6, pp. 1403–1414, 2020.
 
 [^21]: D. Gilton, G. Ongie, and R. Willett, “Deep equilibrium architectures for inverse problems in imaging,” IEEE Transactions on Computational Imaging, vol. 7, pp. 1123–1133, 2021.
+
+[^22]: T. Ku ̈stner, N. Fuin, et al., “CINENet: deep learning-based 3D cardiac CINE MRI reconstruction with multi-coil complex-valued 4D spatio-temporal convolutions,” Sci Rep, vol. 10, no. 13710, 2020.
+
+[^23]: Z. Huang, J. Bae, et al., “A Simulation Pipeline to Generate Realistic Breast Images for Learning DCE-MRI Reconstruction,” Machine Learning for Medical Image Reconstruction, vol. 12964, 2021.
