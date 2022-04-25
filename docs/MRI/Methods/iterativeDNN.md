@@ -33,7 +33,7 @@ $$
 
 where:
 - the regularisation term $\mathscr{R}[x]$, which learned from data
-- the DC term $\mathscr{R}[Ax,y] = \frac12 \|Ax-y\|^2_2$
+- the DC term $\mathscr{D}[Ax,y] = \frac12 \|Ax-y\|^2_2$
 - $\lambda$ balances between them
 
 A solution is obtained by alternating optimisation in $\mathscr{R}$ and $\mathscr{D}$ for a fixed number of iterations $T$. We define the fixed unrolled algorithm for MRI reconstruction as:

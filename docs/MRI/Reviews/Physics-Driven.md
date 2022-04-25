@@ -29,7 +29,7 @@ where
 
 With the advent of multi-coil receiver arrays, the redundancies among these coil elements became the important information for the next generation of inverse problems.
 
-In addition to canonical linear linear inverse problems, there are a class of computational MRI methods that deal with more complicated non-linear forward models incorporating physical, systemic and physiological parameters, such as *relaxation* [^1] or *motion* [^2]. In this case, the forward model is given as:
+In addition to canonical linear inverse problems, there are a class of computational MRI methods that deal with more complicated non-linear forward models incorporating physical, systemic and physiological parameters, such as *relaxation* [^1] or *motion* [^2]. In this case, the forward model is given as:
 
 $$
 \mathrm{y=\mathcal{E}(\vartheta)+n}
@@ -37,7 +37,7 @@ $$
 
 where
 - $\vartheta$ are a set of parameters that describe the underlying physical or systemic information
-- $\mathcal{E}$ is a non=linear encoding operator.
+- $\mathcal{E}$ is a non-linear encoding operator.
 
 Physics-driven methods have emerged as the most well-received deep learning techniques by the MRI community due to their incorporation of the MR domain knowledge.
 
@@ -126,7 +126,7 @@ y_k=\int \rho(r)c_k(r)M(\vartheta,x,t,r)e^{-j2\pi k(t)\cdot r} dr
 $$
 
 where
-- spin densities $rho$,
+- spin densities $\rho$,
 - coil sensitivities $c_k$
 - the signal model $M(\vartheta, x,t,r)$ of the unknown parameters $\vartheta$
 - and k-space sampling at spatial points $r$ defined by the k-space trajectory $k(t)$
@@ -151,7 +151,6 @@ Intermediate image reconstruction is not necessary for model-based reconstructio
 
 The data-driven methods are typically implemented in image space, as removing artifacts from aliased images. These image enhancement networks are typically trained to map corrupted and undersampled images to artifact-free images. Learning image enhancement networks is the key ingredient to remove artifacts in image domain. 
 
-However, when only image enhancement methods are used, the information of the acquisition physics is entirely discarded, hence, k-space consistency cannot be guaranteed. 
 
 ### Physics Information in Image/k-space Enhancement Methods
 
@@ -227,7 +226,7 @@ Algorithm unrolling considers the traditional iterative approaches and adapts th
 
 In this line of work, a conventional iterative algorithm is unrolled and solved for a fixed number of iterations. In practice, any iterative optimisation algorithm can be unrolled. In the context of MRI, algorithm unrolling is based on ADDM, gradient descent schemes, proximal gradient, primal-dual methods, or variable splitting methods.
 
-Variational Networks (VNs) are an example for an unrolled gradient descent scheme. In this method, the gradient descent approach is unrolled for $N_i$ steps. In VNs, the gradient with respect to the regulariser $\triangledown_x \mathcal{R}(x)|_{x=x^{(i-1)}}$ is derived from the Fields-of0Experts (FoE) regulariser:
+Variational Networks (VNs) are an example for an unrolled gradient descent scheme. In this method, the gradient descent approach is unrolled for $N_i$ steps. In VNs, the gradient with respect to the regulariser $\triangledown_x \mathcal{R}(x)|_{x=x^{(i-1)}}$ is derived from the Fields-of-Experts (FoE) regulariser:
 
 $$
 \mathcal{R}(x)=\sum^{N_k}_{j=1}\left<\Phi_j(K_jx),1\right>
