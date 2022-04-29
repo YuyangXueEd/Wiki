@@ -4,6 +4,7 @@
 		* [A List of Public MRI Dataset](MRI/Dataset/Dataset_List.md)
 	* [Uncertainty](Uncertainty/Uncertainty_Readinglist.md)
 	* [ML Model Collections](Model/Model_Readinglist.md)
+		* [Generative Models](Model/Generative.md)
 * Tools
 	* [Zotero Sync between Windows and Mac using Onedrive](Tools/Zotero-Onedrive.md)
 	* [Wiki Building: Obsidian + Docsify + Apple Cloud](Tools/ODA.md)
