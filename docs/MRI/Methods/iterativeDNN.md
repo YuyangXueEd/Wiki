@@ -1,3 +1,5 @@
+# Systematic evaluation of iterative deep neural networks for fast parallel MRI reconstruction with sensitivity-weighted coil combination
+
 ## Theory
 
 We investigate a linear multi-coil operator:

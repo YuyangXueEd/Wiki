@@ -1,5 +1,6 @@
 ## Reviews
 1. Abdar M, Pourpanah F, Hussain S, et al. [A review of uncertainty quantification in deep learning: Techniques, applications and challenges](Uncertainty/Reviews/UQ_in_DL.md). Information Fusion, 2021, 76: 243-297. [doi](https://doi.org/10.1016/j.inffus.2021.05.008)
+2. E. Hüllermeier and W. Waegeman, [Aleatoric and epistemic uncertainty in machine learning: an introduction to concepts and methods](Uncertainty/Reviews/U_in_ML.md), _Mach Learn_, vol. 110, no. 3, pp. 457–506, Mar. 2021, doi: [10.1007/s10994-021-05946-3](https://doi.org/10.1007/s10994-021-05946-3).
 
 ## Methods
 
