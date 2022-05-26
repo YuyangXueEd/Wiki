@@ -108,3 +108,153 @@ $$
 $$
 P(HIV|+) = \frac{P(+|HIV)P(HIV)}{P(+|HIV)P(HIV) + P(+|NoHIV)P(NoHIV)} = \frac{0.977 \times 0.0026}{0.977 \times 0.0026 + (1-0.926) \times (1-0.0026)}=0.033
 $$
+
+## Review of Distributions
+
+### Bernoulli
+
+$$
+X \sim B(p),\ P(X=1)=p,\ P(X=0)=1-p
+$$
+
+$$
+f(X=x|p) = f(x|p) = p^x (1-p)^{1-x}I_{\{x\in \{0, 1\}\}^{(x)}}
+$$
+
+Expected value:
+
+$$
+E[X] = \sum_x xP(X=x)=(1)p + (0)(1-p)=p
+$$
+Variance: 
+$$
+\mathrm{Var}(x) = p(1-p)
+$$
+
+### Binomial
+
+The distribution of two possible outcomes.
+
+$$
+X \sim B_{in}(n, p)
+$$
+
+$$
+P(X=x|p)=P(x|p)=(\frac{n!}{x!(n-x)!})p^x(1-p)^{n-x}, \mathrm{for}\ x\in \{0, 1, \dots, n\} 
+$$
+
+Expected Value:
+
+$$
+E[X] = np
+$$
+
+Variance:
+
+$$
+\mathrm{Var}(X) = np(1-p)
+$$
+
+### Uniform Distribution
+
+The PDF is sort of proportional to the probability that the random variable will take a particular value. 
+
+The key idea is that if you integrate the PDF over an interval, it gives you the probability that the random variable would be in that interval.
+
+$$
+X \sim U[0, 1]
+$$
+
+$$
+f(x) = \begin{cases}
+1 & \mathrm{if,} \ x\ \in [ 0,\ 1]\\
+0 & \mathrm{otherwise}
+\end{cases} = I_{\{0 \leq x \leq 1\}^{(x)}}
+$$
+
+![bayesian_uniform.png](../_media/bayesian_uniform.png)
+
+The probability between $0<x<\frac12$:
+
+$$
+P(0<x<\frac12)=\int^{\frac12}_0 f(x)dx = \int^{\frac12}_0 dx = 0.5
+$$
+
+$$
+P(0\leq x\leq\frac12)=\int^{\frac12}_0 f(x)dx = \int^{\frac12}_0 dx = 0.5
+$$
+
+Because there are an infinite number of possible outcomes, so for the possibility of a certain value is 0.
+
+$$
+P(X=\frac12)=0
+$$
+
+Expectation value:
+
+$$
+E[x]=\int^\infty_{-\infty}xf(x)dx
+$$
+
+if $X \bot Y$:
+
+$$
+E[X + Y] = E[X] + E[Y], E[XY]=E[X]E[Y]
+$$
+
+$X \sim [\theta_1, \theta_2]$
+
+$$
+f(x|\theta_1, \theta_2)= \frac{1}{\theta_2-\theta_1}I_{\theta_1 \leq x \leq \theta_2}
+$$
+
+
+### Exponential Distribution
+
+We can write $X$ follows an exponential distribution with a rate parameter $\lambda$.
+
+$$
+X \sim \mathrm{Exp}(\lambda),\ f(x|\lambda)=\lambda e^{-\lambda x}
+$$
+
+$$
+E[X]=\frac{1}{\lambda}, \mathrm{Var}(x)=\frac{1}{\lambda^2}
+$$
+
+### Normal Distribution
+
+$$
+X \sim N(\mu, \sigma^2)
+$$
+
+$$
+f(x|\mu, \sigma^2) = \frac{1}{\sqrt{2\pi \sigma^2}}\exp\{-\frac{1}{2\sigma^2}(x-\mu)^2\}
+$$
+
+$$
+E[X]=\mu, Var(x)=\sigma^2
+$$
+
+If $X$ and $Y$ are independent random variables:
+
+$$
+X\sim N(\mu_x, \sigma_x^2),\ Y\sim N(\mu_y, \sigma_y^2),\ Z=X+Y,\ Z\sim N(\mu_x + \mu_y, \sigma_x^2+\sigma_y^2)
+$$
+
+If not, we still have 
+
+$$
+E(X+Y)=E(X) + E(Y)
+$$
+
+but now
+
+$$
+\mathrm{Var}(X+Y)=\mathrm{Var}(X) + \mathrm{Var}(Y) + 2\mathrm{Cov}(X, Y)
+$$
+
+where
+
+$$
+\mathrm{Cov}(X, Y)=E[(X-E[Y])(Y-E[X])]
+$$

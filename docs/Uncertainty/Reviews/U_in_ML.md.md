@@ -122,7 +122,59 @@ As the prediction $\hat{y}_q$ constitutes the end of a process that consists of 
 
 One way to characterise uncertainty as aleatoric or epistemic is to ask whether or not the uncertainty can be reduced through additional information: Aleatoric uncertainty refers to the irreducible part of the uncertainty, which is due to the non-deterministic nature of the sought input/output dependency, that is, to the stochastic dependency between instances $x$ and outcomes $y$, as expressed by the conditional probability.
 
-What does “reducible” actually mean? An obvious source of additional information is the training data $\mathcal{D}$: The learner’s uncertainty can be reduced by observing more data, while the setting of the learning problem — the instance space $\mathcal{X}$, output space $\mathcal{Y}$, hypothesis space $\mathcal{H}$, joint probability $P$ on $\mathcal{X × Y}$ — remains fixed.
+What does “reducible” actually mean? An obvious source of additional information is the training data $\mathcal{D}$: The learner’s uncertainty can be reduced by observing more data, while the setting of the learning problem — the instance space $\mathcal{X}$, output space $\mathcal{Y}$, hypothesis space $\mathcal{H}$, joint probability $P$ on $\mathcal{X \times Y}$ — remains fixed.
 
 ![UML_separable.png](../../_media/UML_separable.png)
 
+A learner can decide to extend the description of instances by additional features, which essentially means replacing the current instance space $\mathcal{X}$ by another space $\mathcal{X}'$. This change of the setting may have an influence on uncertainty. In the figure above, in a low-dimensional space, two class distributions are overlapping ,which causes *aleatoric* uncertainty in a certain region of the instance space. By embedding the data in a higher-dimensional space, the two classes become separable, and the uncertainty can be resolved. More generally, embedding data in a higher-dimensional space will ***reduce aleatoric and increase epistemic uncertainty***, because fitting a model will become more difficult and require more data.
+
+Aleatoric and epistemic uncertainty should not be seen as absolute notions, they are context-dependent in the sense of depending on the setting $(\mathcal{X, Y, H}, P)$. 
+
+Changing the context will also change the uncertainty: *aleatoric may turn into epistemic uncertainty and vice versa*.
+
+### Approximation and model uncertainty
+
+Assuming the setting $(\mathcal{X, Y, H}, P)$ to be fixed, the learner's lack of knowledge will essentially depend on the amount of data it has seen so far: The larger the number $N=|\mathcal{D}|$ of observations, the less ignorant the learner will be when having to make a new prediction. In the limit, when $N\rightarrow \infty$, a consistent learner will be able to identify $h^*$, i.e., it will get rid of its approximation uncertainty.
+
+![UML_epistemic.png](../../_media/UML_epistemic.png)
+
+What is assumed here is a correctly specified hypothesis space $\mathcal{H}$, such that $f^*\in \mathcal{H}$, i.e., model uncertainty is simply ignored. This uncertainty is very difficult to capture. A kind of meta-analysis would be required: Instead of expressing uncertainty about the ground truth hypothesis $h$ within a hypothesis space $\mathcal{H}$, one has to express uncertainty about which $\mathcal{H}$ among a set $\mathbb{H}$ of candidate hypothesis spaces might be the right one. Simply assuming a correctly specified hypothesis space $\mathcal{H}$ actually means neglecting he risk of model misspecification. In fact, the learning itself as well as all sorts of inference from the data are normally done under the assumption that the model is valid.
+
+## Modelling approximation uncertainty: set-based versus distributional representations
+
+Bayesian inference can be seen as the main representative of probabilistic methods and provides a coherent framework for statistical reasoning that is well-established.
+
+Version space learning can be seen as a "logical" counterpart of Bayesian inference, in which hypotheses and predictions are not assessed numerically in term of probabilities, but only qualified as being *possible or impossible*.
+
+By construction, version space learning is free of aleatoric uncertainty, i.e., all uncertainty is epistemic.
+
+### Version space learning
+
+In the idealised setting of version space learning, we assume a deterministic dependency $f^*: \mathcal{X\rightarrow Y}$, i.e., the distribution degenerates to:
+
+$$
+p(y|x_q) = \begin{cases}
+1 & \mathrm{if} \ y=f^*(x_q) \\
+0 & \mathrm{if} \ y \neq f^*(x_q) 
+\end{cases}
+$$
+
+Moreover, the training data is free of noise.Correspondingly, we also assume that classifiers produce deterministic predictions $h(x)\in \{0, 1\}$. Finally, we assume that $f^*\in \mathcal{H}$, and therefore $h^*=f^*$ (which means there is no model uncertainty).
+
+Under these assumptions, a hypothesis $h\in \mathcal{H}$ can be eliminated as a candidate as soon as it makes at least one mistake on the training data: in that case, the risk of $h$ is necessarily higher than the risk of $h^*$ (which is 0). The idea of the candidate elimination algorithm is to maintain the version space $\mathcal{V \subseteq H}$ that consists of the set of all hypotheses consistent with the data seen so far:
+
+$$
+\mathcal{V=V(H, D)}:=\{h \in \mathcal{H}|h(x_i)=y_i\ \mathrm{for}\ i=1,\dots, N\}
+$$
+
+Obviously the version space is shrinking with an increasing amount of training data, i.e., $\mathcal{V(H, D')\subseteq V(H,D)}$ for $\mathcal{D\subseteq D'}$.
+
+If a prediction $\hat{y_q}$ for a query instance $x_q$ is sought, this query is submitted to all members $h \in \mathcal{V}$ of the version space. Obviously, a unique prediction can only be made if all members agree on the outcome of $x_q$. Otherwise, several outcomes $y \in \mathcal{Y}$ may still appear possible.
+
+We can express the degree of possibility or plausibility of an outcome $y \in \mathcal{Y}$ as follows ($\llbracket \cdot \rrbracket$ denotes the indicator function):
+
+$$
+\pi(y):=\underset{h \in \mathcal{H}}{\max}\min (\llbracket h \in \mathcal{V} \rrbracket, \llbracket h(x_q)=y \rrbracket)
+$$
+
+Thus, $\pi(y)=1$ if there exists a candidate hypothesis $h\in mathcal{V}$
