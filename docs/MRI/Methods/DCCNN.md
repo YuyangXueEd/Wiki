@@ -1,8 +1,8 @@
 # A Deep Cascade of Convolutional Neural Networks for MR Image Reconstruction
 
-## Introduction
+> Updated: May 27th, 2022
 
-Undersampling in *k*-space violates the Nyquist-Shannon theorem and generates aliasing artefacts when the image is reconstructed. The main challenge in this case is to find an algorithm that takes into account the undersampling undergone and can compensate missing data with a-prior knowledge on the image to be reconstructed.
+## Introduction
 
 Using Compressed Sensing (CS), images can be reconstructed from sub-Nyquist sampling, a.k.a, **CS-MRI**:
 
@@ -11,7 +11,6 @@ Using Compressed Sensing (CS), images can be reconstructed from sub-Nyquist samp
 	* can be achieved with random sub-sampling of *k*-space, which translates aliasing patterns in the image domain into patterns that can be regarded as correlated noise.
 
 One of the contributions of our work is to explore the application of CNNs in undersampled MR reconstruction and investigate whether they can exploit data redundancy through learned representations.
-> CNNs have already been applied to compressed sensing from random Gaussian measurements [^1].
 
 We view the reconstruction problem as a de-alising problem in the image domain.
 
