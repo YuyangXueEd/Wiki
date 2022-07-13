@@ -1,5 +1,3 @@
-
-
 ## $k$-space
 
 ### What is $k$-space
