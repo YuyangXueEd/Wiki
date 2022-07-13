@@ -1,5 +1,10 @@
 * [Home](README.md)
 * Academic
+	* [Conference Notes]
+		* [ESMBMB LMR 2022](Conference_Notes/ESMBMB_LMR_2022.md)
+	* [Machine Learning]
+		* [Hyper-parameters](Machine_Learning/Hyper-parameters.md)
+		* [Regularisation.md](Regularisation.md.md)
 	* [MRI Reconstruction](MRI/MRI_Recon_ReadingList.md)
 		* [A List of Public MRI Dataset](MRI/Dataset/Dataset_List.md)
 	* [Uncertainty](Uncertainty/Uncertainty_Readinglist.md)

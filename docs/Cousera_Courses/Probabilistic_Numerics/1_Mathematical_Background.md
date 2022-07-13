@@ -15,7 +15,7 @@ If $P_X$ is sufficiently regular, one can define the probability density functio
   p(x|y)p(y)=p(x,y)
   $$
 
-![PN_probability_inference_1.png](../_media/PN_probability_inference_1.png)
+![PN_probability_inference_1.png](PN_probability_inference_1.png)
 
 The Bayes' theorem describes how *prior knowledge*, combined with *data* generated according to the conditional density $p(y|x)$, gives rise to the *posterior* distribution on $x$:
 
