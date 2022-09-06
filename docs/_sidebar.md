@@ -9,6 +9,9 @@
 	* [Uncertainty](Uncertainty/Uncertainty_Readinglist.md)
 	* [ML Model Collections](Model/Model_Readinglist.md)
 		* [Generative Models](Model/Generative_Models/Reviews/Generative.md)
+* Blogs
+	* [JAX Tutorial](Blogs/Frameworks/JAX_tutorial.md)
+	* [First Flax](Blogs/Frameworks/First_Flax.md)
 * Tools
 	* [Zotero Sync between Windows and Mac using Onedrive](Tools/Zotero-Onedrive.md)
 	* [Wiki Building: Obsidian + Docsify + Apple Cloud](Tools/ODA.md)
