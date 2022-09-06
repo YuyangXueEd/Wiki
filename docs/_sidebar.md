@@ -3,7 +3,7 @@
 	* [Conference Notes](Conference_Notes/Conference_List.md)
 		* [ESMBMB LMR 2022](Conference_Notes/ESMBMB_LMR_2022.md)
 	* [Machine Learning](Machine_Learning/ML_List.md)
-		* [NYU Machine Learing](Machine_Learning/NYU_ML_2021.md)
+		* [NYU Machine Learing](NYU_ML_2021.md)
 	* [MRI Reconstruction](MRI/MRI_Recon_ReadingList.md)
 		* [A List of Public MRI Dataset](MRI/Dataset/Dataset_List.md)
 	* [Uncertainty](Uncertainty/Uncertainty_Readinglist.md)
