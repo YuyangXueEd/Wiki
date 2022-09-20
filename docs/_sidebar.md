@@ -24,4 +24,3 @@
 	* [ML Model Collections](Model/Model_Readinglist.md)
 		* [Generative Models](Model/Generative_Models/Reviews/Generative.md) 
 -->
-	
