@@ -1,6 +1,6 @@
 * [Home](README.md)
 * Academic
-	* [Conference Notes](Conference_Notes/Conference_List.md)
+<!-- 	* [Conference Notes](Conference_Notes/Conference_List.md)
 		* [ESMBMB LMR 2022](Conference_Notes/ESMBMB_LMR_2022.md)
 	* [Machine Learning](Machine_Learning/ML_List.md)
 		* [NYU Machine Learing](NYU_ML_2021.md)
@@ -8,7 +8,7 @@
 		* [A List of Public MRI Dataset](MRI/Dataset/Dataset_List.md)
 	* [Uncertainty](Uncertainty/Uncertainty_Readinglist.md)
 	* [ML Model Collections](Model/Model_Readinglist.md)
-		* [Generative Models](Model/Generative_Models/Reviews/Generative.md)
+		* [Generative Models](Model/Generative_Models/Reviews/Generative.md) -->
 	* [Blogs]
 		* [Diffusion Models in MRI Reconstruction: Theory, Algorithms, and Beyond](Blogs/Generative_Models/Diffusion_in_MRI_Recon.md)
 		* [Frameworks]
