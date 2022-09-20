@@ -50,13 +50,13 @@ A simple illustration can be used here to represent the forward process. the sma
 
 这里可以用一个简单的插图来表示前进过程。$t$越小，图像越清晰；$t$越大，图像越接近高斯噪声。
 
-![Fig. 1, The forward process, adding noise to the .  ](../../_media/Diffusion_in_MRI_Recon_Forward.png Fig. 1, The forward process, adding noise to the .)
+![Fig. 1 ](../../_media/Diffusion_in_MRI_Recon_Forward.png 'Fig. 1, The forward process, adding noise to each step.')
 
 Usually we do not use neural network in forward process, just use noise scheduler. If we set $\beta_0=0.0001$, and $\beta_T=0.02$, in a total time steps of $T=1000$, we can easily get $\beta_t$ of every step in a linear scheduler.
 
 通常我们在前进过程中不使用神经网络，只是使用噪声调度器。如果我们设置$\beta_0=0.0001$，$\beta_T=0.02$，在总时间步数为$T=1000$时，我们可以很容易地得到线性调度器中每一步的$\beta_t$。
 
-![Fig. 2, Noise scheduler](../../_media/Diffusion_in_MRI_Recon_beta_mean_variance.png Fig. 2, Noise scheduler)
+![Fig. 2, Noise scheduler](../../_media/Diffusion_in_MRI_Recon_beta_mean_variance.png 'Fig. 2, Noise scheduler')
 
 Now we can rewrite the single forward step $q(x_t|x_{t-1})$ in a more convenient way, defining $\alpha_t = 1-\beta_t,\ \  \bar{\alpha_t}=\prod^T_{s=1} \alpha_s$:
 

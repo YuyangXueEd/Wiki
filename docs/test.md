@@ -1,3 +1,3 @@
 $x_0$
 
-![](_media/avatar.jpeg asdf)
+![](_media/avatar.jpeg 'asdf')
