@@ -9,6 +9,11 @@
 	* [Uncertainty](Uncertainty/Uncertainty_Readinglist.md)
 	* [ML Model Collections](Model/Model_Readinglist.md)
 		* [Generative Models](Model/Generative_Models/Reviews/Generative.md)
+	* [Blogs]
+		* [Diffusion Models in MRI Reconstruction: Theory, Algorithms, and Beyond](Blogs/Generative_Models/Diffusion_in_MRI_Recon.md)
+		* [Frameworks]
+			* [Jax Tutorial](Blogs/Frameworks/JAX_tutorial.md)
+			* [First_Flax](Blogs/Frameworks/First_Flax.md)
 * Tools
 	* [Zotero Sync between Windows and Mac using Onedrive](Tools/Zotero-Onedrive.md)
 	* [Wiki Building: Obsidian + Docsify + Apple Cloud](Tools/ODA.md)
