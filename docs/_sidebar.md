@@ -14,6 +14,7 @@
 		* [Frameworks]
 			* [Jax Tutorial](Blogs/Frameworks/JAX_tutorial.md)
 			* [First_Flax](Blogs/Frameworks/First_Flax.md)
+	* [test](test.md)
 * Tools
 	* [Zotero Sync between Windows and Mac using Onedrive](Tools/Zotero-Onedrive.md)
 	* [Wiki Building: Obsidian + Docsify + Apple Cloud](Tools/ODA.md)
