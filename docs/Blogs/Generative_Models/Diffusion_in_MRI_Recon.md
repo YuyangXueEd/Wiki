@@ -26,6 +26,8 @@ Imagine that our data is a complex distribution and it may be difficult for us t
 
 想象一下，我们的数据是一个复杂的分布，我们可能很难直接、完整地获得这个分布的全部信息。但就像热力学中描述的“扩散”一样，从一个复杂的、高密度的区域扩散到一个简单的、低密度的区域是相对容易的，比如一个均值为0、方差为1的高斯分布。如果我们能学会这个从高到低过程的逆过程，那么我们就有可能从一个简单的高斯分布产生我们的复杂数据。
 
+#### Forward Process
+
 Given our data sample $x_0$ and our data distribution $p(x)$, and we gradually add a certain amount of Gaussian noise to our data, in a total of $T$ steps. That means, $x_T$ will be a pure Gaussian. We can write this in a formal way:
 
 给定我们的数据样本$x_0$和我们的数据分布$p(x)$ ，我们逐渐向我们的数据添加一定量的高斯噪声，共分$T$步。这就是说，$x_T$将是一个纯高斯图像。这个过程可以用公式表示为：
@@ -82,12 +84,193 @@ The first half of this formula is easier to understand, all of $x_t$ can be repl
 
 $$
 \begin{aligned}
-q(x_t|x_{t-1}))=\sqrt{\alpha_t}x_{t-1}+\sqrt{1-\alpha_t}\epsilon_t\\
-=\sqrt{\alpha_t}(\sqrt{\alpha_{t-1}}x_{t-2} +\sqrt{1-\alpha_{t-1}}\epsilon_{t-1})+\sqrt{1-\alpha_t}\epsilon_t\\
-=\sqrt{\alpha_t\alpha_{t-1}}x_{t-2} + \overbrace{\sqrt{\alpha_t -\alpha_t\alpha_{t-1}}\epsilon_{t-1}+\sqrt{1-\alpha_t}\epsilon_t}^{merge}\\
-=\sqrt{\alpha_t\alpha_{t-1}}x_{t-2}+\sqrt{1-\alpha_t\alpha_{t-1}}
+q(x_t|x_{t-1})) &=\sqrt{\alpha_t}x_{t-1}+\sqrt{1-\alpha_t}\epsilon_t\\
+&=\sqrt{\alpha_t}(\sqrt{\alpha_{t-1}}x_{t-2} +\sqrt{1-\alpha_{t-1}}\epsilon_{t-1})+\sqrt{1-\alpha_t}\epsilon_t\\
+&=\sqrt{\alpha_t\alpha_{t-1}}x_{t-2} + \overbrace{\sqrt{\alpha_t -\alpha_t\alpha_{t-1}}\epsilon_{t-1}+\sqrt{1-\alpha_t}\epsilon_t}^{merge}\\
+&=\sqrt{\alpha_t\alpha_{t-1}}x_{t-2}+\sqrt{1-\alpha_t\alpha_{t-1}}\epsilon_{t-1}
 \end{aligned}
 $$
+
+Thus we can get the closed form of equation $(4)$. Usually, we can afford a larger update step when the sample gets noisier, so $\beta_1<\beta_2<\dots<\beta_T$ and therefore $\bar{\alpha}_1>\dots>\bar{\alpha}_T$.
+
+因此我们可以得到方程$(4)$的解析解。通常情况下，当样本变得更加嘈杂时，我们可以承受更大的更新步骤，所以$\beta_1<\beta_2<\dots<\beta_T$，因此$\bar{\alpha}_1>\dots>\bar{\alpha}_T$。
+
+#### Reverse Process
+
+Can’t we just define a reverse process $q(x_{t−1}∣x_t)$ and trace back from the noise to the image? 
+> First of all, that would fail conceptually, as we want to have a neural network that learns how to deal with a problem - we shouldn’t provide it with a clear solution. And second of all, we cannot quite do that, as **it would require marginalisation over the entire data distribution.** To get back to the starting distribution $q(x_0)$ from the noised sample we would have to marginalise over all of the ways we could arise at $x_0$ from the noise, including all of the latent states. That means calculating $\int q(x_{0:T})dx_{1:T}$, which is intractable. -- From [[Maciej Domagała Blog](https://maciejdomagala.github.io/generative_models/2022/06/06/The-recent-rise-of-diffusion-based-models.html)]
+
+我们就不能定义一个反向过程$q(x_{t-1}∣x_t)$并从噪声追溯到图像吗？
+> 首先，这在概念上是行不通的，因为我们想让一个神经网络学习如何处理问题--我们不应该给它提供一个明确的解决方案。其次，我们不能完全做到这一点，因为**它需要对整个数据分布进行边缘化。** 为了从噪声样本中回到起始分布$q(x_0)$，我们必须对所有可能从噪声中产生$x_0$的方式进行边际化，包括所有的潜藏状态。这意味着要计算$\int q(x_{0:T})dx_{1:T}$，这是很难做到的。 --来自[[Maciej Domagała Blog](https://maciejdomagala.github.io/generative_models/2022/06/06/The-recent-rise-of-diffusion-based-models.html)]
+
+But we can approximate it by training a learnable neural network, which can approximate the reverse process. We note the reverse process model as $p_\theta(\cdot)$, which can be defined as:
+
+但我们可以通过训练一个可学习的神经网络来近似它，它可以近似反向过程。我们注意到反向过程模型为$p_\theta(\cdot)$，它可以被定义为:
+
+$$
+p_\theta(x_{0:T})=p(x_T)\prod^T_{t=1}p_\theta(x_{t-1}|x_t) \tag{5}
+$$
+
+Each single step of a reverse process can be seen as a kind of Gaussian:
+
+反向过程的每一个单一步骤都可以被看作是一个高斯分布:
+
+$$
+p_\theta (x_{t-1}|x_t) = \mathcal{N}(\overbrace{x_{t-1}}^{output}, \overbrace{\mu_\theta(x_t, t)}^{mean}, \overbrace{\Sigma_\theta(x_t, t)}^{variance}) \tag{6}
+$$
+
+According to our noise scheduler above, the $\Sigma_\theta$ here is fixed, so here we only need to predict the mean $\mu_\theta$, which can be approximated by a neural network.
+
+根据我们上面的噪声调度器，这里的$\Sigma_\theta$是固定的，所以这里我们只需要预测平均值$\mu_\theta$，它可以由一个神经网络来近似。
+
+## Loss Function
+
+We can now start by looking at the loss function of this model. A detailed and dynamic derivation can be found in the video [Diffusion Models | Paper Explanation | Math Explained](https://youtu.be/HoKDTa5jHvg?t=573).We find its negative cross-entropy for the target distribution $-\log(p_\theta(x_0))$. Since it is intractable, and the diffusion model can also be treated as a  Markovian hierarchical VAE, we can use variational lower bound (VLB) to optimise the loss function:
+
+我们现在可以先来看看这个模型的损失函数。我们对目标分布求其负交叉熵：$-\log(p_\theta(x_0))$。详细且动态的推导过程可以参考视频 [Diffusion Models | Paper Explanation | Math Explained](https://youtu.be/HoKDTa5jHvg?t=573).由于它是难以计算的，而且Diffusion Model 也可以被当作马尔科夫多层VAE，我们可以使用 Variational Lower Bound（VLB）来优化损失函数：
+
+$$
+\begin{aligned}
+-\log (p_\theta(x_0)) \leq -\log(p_\theta(x_0)) + D_{KL}(q(x_{1:T}|x_0) || p_\theta(x_{1:T}|x_0))
+\end{aligned} \tag{7}
+$$
+
+The $D_{KL}$ is defined as:
+
+KL散度的定义为：
+
+$$
+D_{KL}(p||q)=\int_x p(x)\log\frac{p(x)}{q(x)}dx
+$$
+
+The KL-Divergence cannot smaller than $0$, which means the two distribution are exactly the same. So we can add the KL-divergence to estimate the lower bound. We can rewrite the KL-Divergence as:
+
+由于KL散度不能小于$0$，这意味着两个分布完全相同。所以我们可以加上KL散度来估计VLB。我们可以重写KL散度为：
+
+$$
+\begin{aligned}
+\log\left(\frac{q(x_{1:T}|x_0)}{p_\theta(x_{1:T}|x_0)}\right) &=\log\left(\frac{q(x_{1:T}|x_0)}{\underbrace{\frac{p_\theta(x_0|x_{1:T})p_\theta(x_{1:T})}{p_\theta(x_0)}}_{Bayesian\ Rule}}\right)\\
+&= \log(\frac{q(x_{1:T}|x_0)}{\frac{p_\theta(x_{0,T})}{p_\theta(x_0)}})\\
+&= \log(\frac{q(x_{1:T}|x_0)}{p_\theta(x_{0,T})})+\log(p_\theta(x_0))
+\end{aligned}
+$$
+
+Then we can easily cancel the first item in the equation $(7)$, the VBL now is:
+
+然后我们可以很容易地消掉方程$(7)$中的第一项，现在，VBL为：
+
+$$
+-log(p_\theta(x_0)) \leq \log(\frac{q(x_{1:T}|x_0)}{p_\theta(x_{0,T})}) \tag{8}
+$$
+
+We can also rewrite the right hand term in equation $(8)$ as:
+
+我们也可以将方程$(8)$中的右边项改写为:
+
+$$
+\begin{aligned}
+\log\left(\frac{q(x_{1:T}|x_0)}{p_\theta(x_{0:T})}\right) &= \log \left(\frac{\prod^T_{t=1}q(x_t|x_{t-1})}{p(x_T)\prod^T_{t=1}p_\theta(x_{t-1}|x_t)}\right)\\
+&=\overbrace{-log(p(x_T))}^{can\ be\ calculate}+\log\left(\frac{\prod^T_{t=1}q(x_t|x_{t-1})}{\prod^T_{t=1}p_\theta(x_{t-1}|x_t)}\right) & \text{ ;forward and reverse in log}\\
+&=-log(p(x_T))+\sum^T_{t=1}\log \left(\frac{q(x_t|x_{t-1})}{p_\theta(x_t|x_{t-1})}\right) &\text{ ;log characterristic}
+\end{aligned}
+$$
+
+It looks like we're at our wits' end, but the author uses a little trick here to separate out $x_0$:
+
+看起来我们已经束手无策了，但是作者在这里使用了一个小技巧，把$x_0$分离出来：
+
+$$
+\begin{aligned}
+\sum^T_{t=1}\log \left(\frac{q(x_t|x_{t-1})}{p_\theta(x_t|x_{t-1})}\right) &= \sum^T_{t=2}\log\left(\frac{q(x_t|x_{t-1})}{p_\theta(x_t|x_{t-1})}\right) + \log\left(\frac{q(x_1|x_{0})}{p_\theta(x_1|x_{0})}\right)
+\end{aligned}
+$$
+
+The reason for this is that both $q(x_{t-1}|x_{t})$ and $q(x_t)$ have very high variance, and we can add an $x_0$ as a condition for all terms except for the $t=1$ case to make the variance lower and easier to determine. Another reason is that conditioning $x_0$ on itself is meaningless and leads the equation into a weird loop.
+
+这样做的原因是因为$q(x_{t-1}|x_{t})$和$q(x_t)$都有非常高的方差，我们可以给除了$t=1$情况下的其他项添加一个$x_0$ 作为条件，使其方差降低，更容易确定。另一个理由是给$x_0$自身作条件是没有意义的而且会使等式陷入奇怪的循环。
+
+$$
+q(x_t|x_{t-1})=\frac{q(x_{t-1}|x_t)q(x_t)}{q(x_{t-1})}=\frac{q(x_{t-1}|x_t, x_0)q(x_t|x_0)}{q(x_{t-1}|x_0)}
+$$
+
+We bring this result into the original equation $(8)$:
+
+我们将该结果带入原式 $(8)$ 中：
+
+$$
+\begin{aligned}
+-\log p_\theta(x_0) &\leq -\log p(x_T) + \sum^T_{t=2}\log \left(\frac{q(x_{t-1}|x_t,x_0)q(x_t|x_0)}{p_\theta(x_{t-1}|x_t)q(x_{t-1}|x_0)}\right) + \log \left(\frac{q(x_1|x_0)}{p_\theta(x_0|x_1)}\right) \\
+&\leq -\log p(x_T) + \sum^T_{t=2}\log \left(\frac{q(x_{t-1}|x_t,x_0)}{p_\theta(x_{t-1}|x_t)}\right) + \sum^T_{t=2}\log \left(\frac{q(x_t|x_0)}{q(x_{t-1}|x_0)}\right) +  \log \left(\frac{q(x_1|x_0)}{p_\theta(x_0|x_1)}\right)
+\end{aligned}
+$$
+
+If you expand the term $\sum^T_{t=2}\log \left(\frac{q(x_t|x_0)}{q(x_{t-1}|x_0)}\right)$ here you can see that it will cancel the last term's numerator, and then we can combine the remainder to the first term, just like this:
+
+如果你把$\sum^T_{t=2}\log \left(\frac{q(x_t|x_0)}{q(x_{t-1}|x_0)}\right)$这里展开，你可以看到它将取消最后一项的分子，然后我们可以把余下的部分合并到第一项，就像这样:
+
+$$
+\begin{aligned}
+-\log p_\theta(x_0) &\leq \log \frac{q(x_t|x_0)}{p(x_T)} + \sum^T_{t=2}\log \left(\frac{q(x_{t-1}|x_t,x_0)}{p_\theta(x_{t-1}|x_t)}\right) - \log p_\theta(x_0|x_1)\\
+&\leq D_{KL}(q(x_t|x_0)||p(x_T)) + \sum^T_{t=2}D_{KL}(q(x_{t-1}|x_t, x_0)||p_\theta(x_{t-1}|x_t))-\log p_\theta(x_0|x_1)
+\end{aligned}
+$$
+
+Take a closer look at the first item, we can see that the numerator is the forward process, and the denominator is actually a pure Gaussian distribution, which makes the first term a very small number -- which means they are very similar, and we can omit that;  As for the second term, both the numerator and the denominator are in the same form, a single forward and reverse process. 
+
+仔细看看第一项，我们可以看到分子是正向过程，而支配者实际上是一个纯高斯分布，这使得第一项成为一个非常小的数字--这意味着它们非常相似，我们可以省略；至于第二项，分子和分母的形式都一样，是一个单步正向和反向过程。
+
+It is noteworthy that the reverse conditional probability is tractable when conditioned on $x_0$, then we can omit the step $t$:
+
+值得注意的是，当以$x_0$为条件时，反向条件概率是可求解的，我们可以省略步骤$t$:
+
+$$
+p_\theta(x_{t-1}|x_t, x_0)=\mathcal{N}(x_{t-1}, \tilde{\mu}_\theta(x_t, x_0), \tilde{\beta}\mathbb{I}) \tag{9}
+$$
+
+According to the equation $(1)$ and $(9)$, we can transform the term into a form of Gaussian.
+
+根据方程$(1)$和$(6)$，我们可以将该项转化为高斯的形式。
+
+$$
+\sum^T_{t=2}D_{KL}(q(x_{t-1}|x_t, x_0)||p_\theta(x_{t-1}|x_t)) = \sum^T_{t=2} \log \left(\frac{\mathcal{N}(x_{t-1}; \tilde{\mu}(x_t, x_0), \tilde{\beta}_t\mathbb{I})}{\mathcal{N}(x_{t-1}; \mu_\theta(x_t, t), \beta \mathbb{I})}\right)  \tag{10}
+$$
+
+According to Bayes' Theorem, we can get the following deduction (check more from [Lil'Log -- What are Diffusion Models?](https://lilianweng.github.io/posts/2021-07-11-diffusion-models/)): 
+
+根据贝叶斯定理，我们可以得到以下推论（参阅[Lil'Log -- What are Diffusion Models?](https://lilianweng.github.io/posts/2021-07-11-diffusion-models/)）：
+
+Since $q(x_{t-1}|x_t)=\frac{q(x_t|x_{t-1})q(x_{t-1})}{q(x_t)}$, we can get:
+
+$$
+\begin{aligned}
+q(x_{t-1}|x_t, x_0) &=q(x_t|x_{t-1}, x_0)\frac{q(x_t|x_0)}{q(x_{t-1}|x_0)}
+\end{aligned}
+$$
+
+And in fact we can think of these steps as the process of combining and subtracting several Gaussian distributions, with proportional results:
+
+而实际上我们可以把这几步看作是几个高斯分布合并和相减的过程，结果是成正比的：
+
+$$
+\begin{aligned}
+q(x_{t-1}|x_t, x_0) &=q(x_t|x_{t-1}, x_0)\frac{q(x_t|x_0)}{q(x_{t-1}|x_0)} \\
+&\propto  \exp\left(-\frac12 \left( \frac{(x_t-\sqrt{\alpha_t}x_{t-1})^2}{\beta_t} + \frac{(x_{t-1}-\sqrt{\bar{\alpha}_{t-1}x_0})^2}{1-\bar{\alpha}_{t-1}} - \frac{(x_t-\sqrt{\bar{\alpha}_tx_0})^2}{1-\bar{\alpha}_t}  \right)\right) \\
+&=\exp \left( -\frac12 \left( \frac{x_t^2-2\sqrt{\alpha_t}x_t\color{blue}{x_{t-1}}+\color{white}{\alpha_t}\color{red}{x^2_{t-1}}}{} +\frac{}{}-\frac{}{}      \right)     \right)
+\end{aligned}
+$$
+
+
+
+
+
+
+
+
+---
+
+
+
+
 
 
 
@@ -106,6 +289,7 @@ I have been inspired by the following blogs and thank these bloggers for their h
 
 - [Lil'Log -- What are Diffusion Models?](https://lilianweng.github.io/posts/2021-07-11-diffusion-models/)
 - [Ayan Das -- An introduction to Diffusion Probabilistic Models](https://ayandas.me/blog-tut/2021/12/04/diffusion-prob-models.html)
+- [Maciej Domagała -- The recent rise of diffusion-based models](https://maciejdomagala.github.io/generative_models/2022/06/06/The-recent-rise-of-diffusion-based-models.html)
 
 
 ## Reference
