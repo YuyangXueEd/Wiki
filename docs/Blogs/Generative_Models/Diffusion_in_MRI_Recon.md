@@ -211,13 +211,13 @@ If you expand the term $\sum^T_{t=2}\log \left(\frac{q(x_t|x_0)}{q(x_{t-1}|x_0)}
 $$
 \begin{aligned}
 -\log p_\theta(x_0) &\leq \log \frac{q(x_t|x_0)}{p(x_T)} + \sum^T_{t=2}\log \left(\frac{q(x_{t-1}|x_t,x_0)}{p_\theta(x_{t-1}|x_t)}\right) - \log p_\theta(x_0|x_1)\\
-&\leq D_{KL}(q(x_t|x_0)||p(x_T)) + \sum^T_{t=2}D_{KL}(q(x_{t-1}|x_t, x_0)||p_\theta(x_{t-1}|x_t))-\log p_\theta(x_0|x_1)
+&\leq \underbrace{D_{KL}(q(x_t|x_0)||p(x_T))}_{L_T} + \underbrace{\sum^T_{t=2}D_{KL}(q(x_{t-1}|x_t, x_0)||p_\theta(x_{t-1}|x_t))}_{L_{t-1}}-\underbrace{\log p_\theta(x_0|x_1)}_{L_0}
 \end{aligned}
 $$
 
-Take a closer look at the first item, we can see that the numerator is the forward process, and the denominator is actually a pure Gaussian distribution, which makes the first term a very small number -- which means they are very similar, and we can omit that;  As for the second term, both the numerator and the denominator are in the same form, a single forward and reverse process. 
+Take a closer look at the first item, we can see that the numerator is the forward process, and the denominator is actually a pure Gaussian distribution, which makes the first term a very small number -- which means they are very similar, and we can omit that: $L_T$is constant and can be ignored during training because $q$ has no learnable parameters and $x_T$ is a Gaussian noise;  As for the second term, both the numerator and the denominator are in the same form, a single forward and reverse process. The last term, [Ho et al.](https://arxiv.org/abs/2006.11239) models $L_0$ using a separate discrete decoder derived from $\mathcal{N}(x0;\mu_\theta(x_1,1),\Sigma_\theta(x1,1))$. A detailed introduction is in [Outlier's video](https://youtu.be/HoKDTa5jHvg?t=1456).
 
-仔细看看第一项，我们可以看到分子是正向过程，而支配者实际上是一个纯高斯分布，这使得第一项成为一个非常小的数字--这意味着它们非常相似，我们可以省略；至于第二项，分子和分母的形式都一样，是一个单步正向和反向过程。
+仔细看看第一项，我们可以看到分子是正向过程，而支配者实际上是一个纯高斯分布，这使得第一项成为一个非常小的数字--这意味着它们非常相似，我们可以省略:$L_T$是常数，在训练中可以忽略，因为$q$没有可学习的参数，$x_T$是高斯噪声；至于第二项，分子和分母的形式都一样，是一个单步正向和反向过程。最后一项，[Ho et al.](https://arxiv.org/abs/2006.11239)使用由$\mathcal{N}(x0;\mu_\theta(x_1,1),\Sigma_\theta(x1,1))$派生的单独的离散解码器对$L_0$建模。详细介绍见[Outlier的视频](https://youtu.be/HoKDTa5jHvg?t=1456)。
 
 It is noteworthy that the reverse conditional probability is tractable when conditioned on $x_0$, then we can omit the step $t$:
 
@@ -255,14 +255,106 @@ $$
 \begin{aligned}
 q(x_{t-1}|x_t, x_0) &=q(x_t|x_{t-1}, x_0)\frac{q(x_t|x_0)}{q(x_{t-1}|x_0)} \\
 &\propto  \exp\left(-\frac12 \left( \frac{(x_t-\sqrt{\alpha_t}x_{t-1})^2}{\beta_t} + \frac{(x_{t-1}-\sqrt{\bar{\alpha}_{t-1}x_0})^2}{1-\bar{\alpha}_{t-1}} - \frac{(x_t-\sqrt{\bar{\alpha}_tx_0})^2}{1-\bar{\alpha}_t}  \right)\right) \\
-&=\exp \left( -\frac12 \left( \frac{x_t^2-2\sqrt{\alpha_t}x_t\color{blue}{x_{t-1}}+\color{white}{\alpha_t}\color{red}{x^2_{t-1}}}{} +\frac{}{}-\frac{}{}      \right)     \right)
+&=\exp \left( -\frac12 \left( \frac{x_t^2-2\sqrt{\alpha_t}x_t\color{blue}{x_{t-1}}+\color{black}{\alpha_t}\color{red}{x^2_{t-1}}}{\beta_t} +\frac{\color{red}{x^2_{t-1}\color{black}-2\sqrt{\bar{\alpha}_{t-1}}x_0\color{blue}{x_{t-1}}\color{black}+\bar{\alpha}_{t-1}x^2_0}}{1-\bar{\alpha}_{t-1}}-\frac{(x_t-\sqrt{\bar{\alpha}_tx_0})^2}{1-\bar{\alpha}_t}       \right)     \right)\\
+&=\exp\left(-\frac12\left( \color{red}\left(\frac{\alpha_t}{\beta_t}+\frac{1}{1-\bar{\alpha}_{t-1}}\right)x^2_{t-1}  \color{black}-\color{blue}\left(\frac{2\sqrt{\alpha_t}}{\beta_t}x_t+\frac{2\sqrt{\alpha_{t-1}}}{1-\bar{\alpha}_{t-1}}x_0\right)x_{t-1}  \color{black}+ C(x_t, x_0)\right)\right)
 \end{aligned}
 $$
 
+As in the above equation, we only need the terms associated with $x_{t-1}$ and the part associated with $C(x_t,x_0)$ is omitted. (why is this possible?) We can use the standard Gaussian distribution to get the mean and variance corresponding to that in Eq. $(9)$ as follows.:
 
+如上式，我们只需要$x_{t-1}$相关的项，$C(x_t,x_0)$相关的部分被省略（为什么可以？）。我们可以用标准高斯分布来得到式$(9)$中该分布对应的均值和方差：
 
+$$
+\begin{aligned}
+\tilde{\beta}_t&=1/\color{red}\left(\frac{\alpha_t}{\beta_t}+\frac{1}{1-\bar{\alpha}_{t-1}}\right)\\
+&=\frac{(1-\bar{\alpha}_t)\beta_t}{\alpha_t(1-\bar{\alpha}_{t-1})+\beta_t} &\text{;since } \beta_t=1-\alpha_t\\
+&=\color{green}\frac{1-\bar{\alpha}_{t-1}}{1-\bar{\alpha}_t}\beta_t &\text{;since } \bar{\alpha}_t=\alpha_t\cdot\bar{\alpha}_{t-1}
+\\
+\tilde{\mu}(x_t, x_0) &= \color{blue}\left(\frac{\sqrt{\alpha_t}}{\beta_t}x_t+\frac{\sqrt{\alpha_{t-1}}}{1-\bar{\alpha}_{t-1}}x_0\right) \color{black} / \color{red}\left(\frac{\alpha_t}{\beta_t}+\frac{1}{1-\bar{\alpha}_{t-1}}\right)\\
+&=\color{blue}\left(\frac{\sqrt{\alpha_t}}{\beta_t}x_t+\frac{\sqrt{\alpha_{t-1}}}{1-\bar{\alpha}_{t-1}}x_0\right)\color{green}\frac{1-\bar{\alpha}_{t-1}}{1-\bar{\alpha}_t}\beta_t\\
+&=\frac{(1-\bar{\alpha}_{t-1})\sqrt{\alpha_t}}{1-\bar{\alpha_t}}x_t + \frac{\sqrt{\alpha_{t-1}}\beta_t}{1-\bar{\alpha}_{t}}x_0
+\end{aligned}
+$$
 
+This form of the mean looks complicated, doesn't it? Once again, we can use the reparameterization trick by transforming equation $(4)$ and bringing in:
 
+均值的这种形式看起来很复杂，对不对？我们又可以再一次利用reparameterization trick，将式4进行变换后带入：
+
+$$
+x_0=\frac{1}{\sqrt{\bar{\alpha}_t}}(x_t-\sqrt{1-\bar{\alpha}_t}\epsilon_t)
+$$
+
+$$
+\begin{aligned}
+\tilde{\mu}(x_t, x_0) &= \frac{(1-\bar{\alpha}_{t-1})\sqrt{\alpha_t}}{1-\bar{\alpha_t}}x_t +\frac{\sqrt{\bar{\alpha}}_{t-1}\beta_t}{1-\bar{\alpha}_{t}}\frac{1}{\sqrt{\bar{\alpha}_t}}(x_t-\sqrt{1-\bar{\alpha}_t}\epsilon_t)\\
+&=\frac{\sqrt{\bar{\alpha}_t}\sqrt{\alpha}_t(1-\bar{\alpha}_{t-1})+\sqrt{\bar{\alpha}}_{t-1}\beta_t}{(1-\bar{\alpha}_t)\sqrt{\bar{\alpha}}_t}x_t-\frac{\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)}{\sqrt{1-\bar{\alpha}_t}\sqrt{\bar{\alpha}_t}}\epsilon_t &\text{;we deal with the first item first}\\
+&=\frac{\cancel{\sqrt{\bar{\alpha}_t}}\sqrt{\alpha}_t(1-\bar{\alpha}_{t-1})+\cancel{\sqrt{\bar{\alpha}}_{t-1}}(1-\alpha_t)}{(1-\bar{\alpha}_t)\cancel{\sqrt{\bar{\alpha}}_t}}x_t-\frac{\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)}{\sqrt{1-\bar{\alpha}_t}\sqrt{\bar{\alpha}_t}}\epsilon_t &\text{;Divide both by } \sqrt{\bar{\alpha}}_{t-1}\\
+&=\frac{\sqrt{{\alpha}_t}\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})+(1-\alpha_t)}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}}x_t-\frac{\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)}{\sqrt{1-\bar{\alpha}_t}\sqrt{\bar{\alpha}_t}}\epsilon_t\\
+&=\frac{\cancel{\alpha_t-\bar{\alpha}_t+1-\alpha_t}}{\cancel{(1-\bar{\alpha}_t)}\sqrt{\alpha_t}}x_t -\frac{\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)}{\sqrt{1-\bar{\alpha}_t}\sqrt{\bar{\alpha}_t}}\epsilon_t &\text{;the first item is clear :)} \\
+&=\frac{1}{\sqrt{\alpha_t}}x_t-\frac{\cancel{\sqrt{\bar{\alpha}_{t-1}}}(1-\alpha_t)}{\sqrt{1-\bar{\alpha}_t}\cancel{\sqrt{\bar{\alpha}_t}}}\epsilon_t &\text{;work on second term the same way}\\
+&=\frac{1}{\sqrt{\alpha_t}}x_t-\frac{(1-\alpha_t)}{\sqrt{1-\bar{\alpha}_t}\sqrt{\alpha_t}}\epsilon_t\\
+&=\frac{1}{\sqrt{\alpha_t}}\left(x_t-\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}}\epsilon_t\right) &\text{very pretty outcome :)}
+\end{aligned}
+$$
+
+Thus, we can finally conclude the $\tilde{\mu}_t$ and $\tilde{\beta}_t$ as:
+
+因此，我们最后可以得出$\tilde{\mu}_t$和$\tilde{\beta}_t$如下：
+
+$$
+\tilde{\mu}(x_t, x_0)=\frac{1}{\sqrt{\alpha_t}}\left(x_t-\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}}\epsilon_t\right) \tag{11}
+$$
+
+and 
+
+$$
+\tilde{\beta}_t = \frac{1-\bar{\alpha}_{t-1}}{1-\bar{\alpha}_t}\beta_t \tag{12}
+$$
+
+Now look back to our loss function in Eq. $(10)$, this is to compare two forward and reverse process in Gaussian. We can train the neural network $\mu_\theta$ to predict $\tilde{\mu}$ in Eq. $(11)$. Since the closed form of forward process is available, we can easily get any time step data $x_t$, and then we only need to predict the noise $\epsilon_t$ from it at step $t$:
+
+现在回头看看我们在公式$(10)$中的损失函数，这是为了比较高斯的两个正向和反向过程。我们可以训练神经网络$mu_\theta$来预测公式$(11)$中的$tilde{\mu}$。由于正向过程的封闭形式是可用的，我们可以很容易地得到任何时间步长的数据$x_t$，然后我们只需要从它的步长$t$预测噪声$epsilon_t$。
+
+$$
+\mu_\theta(x_t, t)= \frac{1}{\sqrt{\alpha_t}}\left(x_t-\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}}\epsilon_\theta(x_t, t)\right)
+$$
+
+$$
+\begin{aligned}
+x_{t-1} &= \mathcal{N}(\overbrace{x_{t-1}}^{output}, \overbrace{\frac{1}{\sqrt{\alpha_t}}\left(x_t-\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}}\epsilon_\theta(x_t, t)\right)}^{mean}, \overbrace{\Sigma_\theta(x_t, t)}^{variance})\\
+&=\frac{1}{\sqrt{\alpha_t}}(x_t-\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t\epsilon_\theta(x_t,t)}}+\sqrt{1-\alpha_t}\epsilon) &\text{;Reparameterization trick}
+\end{aligned}
+$$
+
+Now recalling our loss function $L_t$, we can easily see that this is the distance that minimises two different means $\tilde{\mu}$ and $\mu_\theta$:
+
+现在回顾一下我们的损失函数$L_t$，我们就可以很容易的发现这是最小化两个不同的均值$\tilde{\mu}$和$\mu_\theta$的距离:
+
+$$
+\begin{aligned}
+L_t&=\mathbb{E}\left[\frac{1}{2\|\Sigma_\theta(x_t,t)\|^2_2}\|\tilde{\mu}(x_t,t), \mu_\theta(x_t,t)\|^2\right]\\
+&=\mathbb{E}\left[\frac{(1-\alpha_t)^2}{2\alpha_t(1-\alpha_t)\|\Sigma_\theta\|^2_2}\|\epsilon_t-\epsilon_\theta(x_t,t)\|^2\right]
+\end{aligned}
+$$
+
+[Ho et al.](https://arxiv.org/abs/2006.11239) found out during their experiments that omit the scaling term brings better sampling quality and easier implementation. Thus we can have a simple form of the loss:
+
+$$
+\begin{aligned}
+L^{simple}_t&=\mathbb{E}_{t\sim(1,T), x_0, \epsilon}[\|\epsilon_t-\epsilon_\theta(x_t,t)\|^2]\\
+&=\mathbb{E}_{t\sim(1,T), x_0, \epsilon}[\|\epsilon_t-\epsilon_\theta(\sqrt{\bar{\alpha_t}}x_0+\sqrt{1-\bar{\alpha_t}}\epsilon_0, t)\|^2]
+\end{aligned}
+$$
+
+Remember we omit tons of irrelevant terms that not related to $x_{t-1}$? If you want you can add them now, because that constant $C$ is not relevant with $\theta$.
+
+还记得我们省略了大量与$x_{t-1}$无关的项吗？如果你想的话，你现在就可以把它们加进去，因为那个常数项$C$和$\theta$没有关系。
+
+$$
+L_{simple}=L^{simiple}_t+C
+$$
+
+![DDPM Algorithm](../../_media/Diffusion_in_MRI_Recon_DDPM_Algo.png 'Figure. 3, The Training and Sampling algorithm from DDPM, by Ho et al.')
 
 
 
