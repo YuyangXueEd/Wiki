@@ -1,8 +1,8 @@
-# Diffusion Models in MRI Reconstruction: Algorithms, Optimisations, and Beyond
+# Diffusion Models in MRI Reconstruction: Algorithms, Optimisations, and Beyond -- Part One: Background
 
 This blog is largely borrowed from papers and online tutorials. The content of the article has been compiled, understood and derived by me personally. If there are any problems please feel free to correct them. Thank you in advance!
 
-本博客主要是借用论文和网上教程的内容。文章的内容是由我个人整理、理解和推导的。如果有任何问题，请随时指正，谢谢。
+本博客主要是受论文和网上博客启发所写的内容。文章的内容是由我个人整理、理解和推导的。如果有任何问题，请随时指正，谢谢。
 
 ## Introduction
 
@@ -413,51 +413,124 @@ You may find that the objective of SDE is very similar to the Eq. $(13)$. In fac
 
 你可能会发现，SDE的目标与公式$(13)$非常相似。事实上，根据Yang等人的综述论文[^9]，如果设定$s_\theta(x_t, t)=-\frac{\epsilon_\theta(x_t, t)}{2\sigma_t}$，DDPM 和 score based model 是相等的! 在实践中，我们需要用离散化的方法来解决 Reverse SDE，所得到的过程类似于DDPM中的反向过程。
 
-### Diffusion Models: Pros and Cons
+### Diffusion Models: Connections to Generative Models
 
 Generative models have a long history of development, from the early days of VAE, to the more recent GAN, Normalising flow, Autoregressive Model and Energy-based Model, the merits of which have been debated by scholars. The emergence of Diffusion Model has increased the number of comparisons between the various generative models. Yang et al. [^9] and Croitoru et al. [^10] compared these models with diffusion model, including theirs commons and differences.
 
 生成模型有很长的发展历史，从早期的VAE，到最近的GAN、归一化流、自回归模型和基于能量的模型，这些模型的优劣一直被学者们争论。扩散模型的出现，增加了各种生成模型之间的比较。Yang 等人 [^9] 和Croitoru 等人  [^10]将这些模型与扩散模型进行了比较，包括其共性和差异。
 
-![Generative Overview](../../_media/Diffusion_in_MRI_Recon_Generative_Overview.png 'Overview of different types of generative models. Image from LilLog')
+![Generative Overview](../../_media/Diffusion_in_MRI_Recon_Generative_Overview.png 'Fig. 4, Overview of different types of generative models. Image from LilLog')
 
 #### Variational AutoEncoder (VAE)
 
 As we mentioned above, the Diffusion Model is similar to the VAE in many ways. VAE uses a pair of *encoder* and *decoder* to first encode the input information $x$ into the latent vector $z$, which is later converted back to the original space by the decoder. This is done to allow the encoder and decoder to learn the mapping between raw space and latent space. Diffusion model, in the same way, using the data is mapped to a Gaussian distribution and the reverse process learns to transform the latent representations into data. Both objective function can be derived as a lower-bound of the data likelihood, just like we did in Eq. $(7)$. Here is a good illustration that straightforwardly shows the connection between VAE and Diffusion model.
 
-![]()
+正如我们上面提到的，扩散模型在许多方面与VAE相似。VAE使用一对*编码器*和*解码器*，首先将输入信息 $x$ 编码为隐向量 $z$，随后由解码器将其转换回原始空间。这样做是为了让编码器和解码器学习原始空间和潜空间之间的映射。扩散模型，以同样的方式，使用数据被映射到高斯分布，反向过程学习将潜伏表示转化为数据。这两个目标函数都可以导出为数据似然的下限，就像我们在公式$(7)$中所做的那样。以下插图很直接显示了VAE和扩散模型之间的联系。
 
+![VAE and Diffusion Model](../../_media/Diffusion_in_MRI_Recon_VAEandDIffusion.png 'Fig. 5, VAEs and Diffusion Probabilistic Models. Origin from [Turner](https://angusturner.github.io/generative_models/2021/06/29/diffusion-probabilistic-models-I.html)')
 
-The introductory article by Luo [^11] and [post](https://angusturner.github.io/generative_models/2021/06/29/diffusion-probabilistic-models-I.html) by Turner does a good job of explaining how to derive from the basic VAE to the Diffusion Model, if you are interested.
+But there are still some prominent difference between them, which is concluded in the table below:
 
+但它们之间仍有一些显著的区别，这在下面的表格中有所总结。
 
+|  | VAEs | Diffusion Models |
+|---|---|---|
+| Latent representation | Contains compressed image information | Entirely destroy image information to Gaussian |
+| Latent dimension | Dimensions are reduced | Same as the original data |
+| Mapping from data to latent | Trainable | Has a closed form thus not trainable |
 
+Since the difference is the opportunity, there are some papers already adapt VAE to diffusion models on latent spaces, such as Vahdat et al. [^11] and Pandey et al. [^12].
 
-#### GAN
+有差别就意味着有机会，有一些论文已经将VAE适应于隐空间上的扩散模型，如Vahdat等人 [^11] 和Pandey等人 [^12] 。
+
+The introductory article by Luo [^13] and [post by Turner](https://angusturner.github.io/generative_models/2021/06/29/diffusion-probabilistic-models-I.html) does a good job of explaining how to derive from the basic VAE to the Diffusion Model, if you are interested.
+
+Luo [^13]的介绍论文和[Turner的博客](https://angusturner.github.io/generative_models/2021/06/29/diffusion-probabilistic-models-I.html)很好地解释了如何从基本的VAE推导到扩散模型，如果你有兴趣的话可以深入阅读。
+
+#### Generative Adversarial Network (GAN)
+
+Before Diffusion Model, there was no more popular generative model than GAN, which has spread to various fields as a basic generative model, due to its good quality of generation. GANs mainly consist of two models, a generator $G$ and a discriminator $D$, and trained in an adversarial way: the generator tries to synthesis real enough images to fool the discriminator, while discriminator trained to identify which image is from the original dataset and which one is synthesised, which means the goal of GAN optimization is to achieve Nash equilibrium.  
+
+在扩散模型之前，GAN 是最流行的生成模型。由于其良好的生成质量，GAN已经作为基本生成模型传播到各个领域。GANs主要由两个模型组成，一个是生成器$G$，一个是判别器$D$，并以对抗的方式进行训练：生成器试图合成足够真实的图像来欺骗判别器，而判别器的训练是为了识别哪些图像是来自原始数据集，哪些是合成的。GAN优化的目标是实现纳什均衡。
+
+GANs has its intrinsic weakness of instability on training and suffering from model collapse. Dhariwal et al. [^14] already pointed out that the proposed guided Diffusion model has better generalisation results than GANs on image synthesis. Moreover, diffusion models have a stable training process and provide more diversity outcome, since it has natural advantage to combine with uncertainty quantification. However, the slow sampling (inference) process holds diffusion model back. Therefore, some implementations that use GANs to help accelerating the sampling speed, such as Xiao et al. [^15], who proposed to model the denoising step using a conditional GAN, allowing larger step size.
+
+GANs有其固有的弱点，即在训练中不稳定，并遭受模型崩溃的困扰。Dhariwal等人[^14]已经指出，在图像合成上，他们提出的 guided Diffusion Model 比GANs有更好的泛化结果。此外，扩散模型有一个稳定的训练过程，并提供更多的多样性结果，因为它具有与不确定性相结合的天然优势。然而，缓慢的采样（推理）过程扯了扩散模型的后腿。因此，一些使用GANs来帮助加速采样速度的实现，如Xiao等人[^15]，他们提出使用 conditional GAN 来模拟去噪步骤，允许更大的步长。
 
 #### Normalising Flow
 
+In fact, Normalising Flow and Diffusion Model are formally similar in that they can both derive extremely complex data distributions from a simple distribution (e.g. Gaussian noise). Moreover, Normalising Flow has good mathematical properties and its exact log-likelihood can be retrieved. In the discrete-time setting, the inverse function $f^{-1}$ of the process function $f_i$ that maps the data $x$ to latent $z$ by Normalising Flow also happens to remap $z$ to $x$, i.e. it is a bijective function, as shown in Figure. 4. For example for a trajectory $\{x_1, x_2, \dots, x_N\}$, there is a corresponding equation $f_i$ such that:
+
+实际上，Normalising Flow和Diffusion Model在形式上很相似，它们都可以从简单分布（例如高斯噪声）中得到极其复杂的数据分布。并且，Normalising Flow有着良好的数学性质，其准确的对数似然是可以计算得到的。在离散时间设置下，Normalising Flow将数据$x$ 映射到$z$的过程函数的反函数恰好也可以使$z$重映射到$x$，也就是说这是一个双射函数，如图4所示。例如，对于一个轨迹$\{x_1, x_2, \dots, x_N\}$，都有一个对应方程$f_i$使得：
+
+$$
+x_i = f_i(x_{i-1}, \theta),\ \ x_{i-1}=f^{-1}_{i}(x_i, \theta), \ \forall\ i <N
+$$
+
+However, the bijective also has the disadvantage of not being able to model data that is too complex. The network architecture also constrained by its deterministic and invertible characteristic, unlike diffusion model. However, work that takes the best of both has gradually emerged. DiffFlow [^16], for example, makes the forward and reverse process both trainable and stochastic. The generation results also show that the boundary is sharper than Normalising Flow and the sampling process is faster due to fewer discretisation steps than DDPM.
+
+然而，双射函数同样也有缺陷，不能建模过于复杂的数据。除扩散模型外，网络结构还受到其确定性和可逆性特征的制约。然而，取其两者精华的工作也逐渐涌现出来。例如，DiffFlow [^16] 使正向和反向过程都是可训练的和随机的。生成结果的边界比Normalising Flow更清晰，而且由于离散化步骤比DDPM少，采样过程更快。
+
 #### Autoregressive Model
+
+The Autoregressive Model sees an image differently than other generative models in that it treats all pixels as a sequence, with the whole image being the joint distribution of all pixels and a subsequent pixel being the product of a conditional distribution of all previous pixels. The chain rule of the autoregressive model can be represented as:
+
+Autoregressive Model看待图片的方式与其他生成模型不同，它将所有的像素看作是一个序列，整张图片是所有像素的联合分布，而所有后面的像素都是以前面所有像素的一个条件分布的乘积。Autoregressive Model的链式法则可以表示为：
+
+$$
+\log p(x_{1:T}) = \sum^T_{t=1} log p(x_t|x_{<t}) 
+$$
+
+Of course, because of the serial approach to high-dimensional data, the Autoregressive Model suffers from the same slow inference speed as the Diffusion Model, requiring pixel-by-pixel generation. Emiel et al. combined the diffusion model with Autoregressive model and proposed ARPMs [^17]. Unlike standard ARMs, they do not require causal masking of model representations, and can be trained using an efficient objective similar to probabilistic diffusion models. At test time, ARDMs support parallel generation which can be adapted to fit any given generation budget.
+
+
+当然，由于是以序列性的方式来看待高维数据，因此Autoregressive Model和Diffusion Model一样饱受缓慢推理速度的折磨，需要一个一个像素生成。Emiel等人将扩散模型与自回归模型相结合，提出了ARPMs [^17]。与标准的 ARMs 不同，它们不需要模型表征的因果屏蔽，并且可以使用类似于概率扩散模型的目标函数进行训练。在测试时，ARDMs支持并行生成，可以适应任何特定的生成部署环境。
 
 #### Energy-Based Model
 
+The energy function is an unnormalised version of density function, one popular strategy used for training this type of models is score matching. Energy-Based Models (EBMs) can be viewed as a kind of generative versions of discriminators, while can be learned from unlabelled input data. Let $x \sim p_{data}(x)$ denote a training example, and $p_\theta (x)$ denote a model’s probability density function that aims to approximates $p_{data} (x)$. The EBMs can be written as:
 
 
+能量函数是密度函数的非正常化版本，用于训练这种类型的模型的一个流行策略是分数匹配。Energy-Based Models（EBM）可以被看作是一种生成版本的判别器，可以从未标记的输入数据中学习。让$x\sim p_{data}(x)$表示一个训练实例，$p_\theta (x)$表示一个模型的概率密度函数，旨在接近$p_{data}(x)$。EBMs可以写作：
 
+$$
+p_\theta(x) =\frac{1}{Z_\theta}\exp(f_\theta(x)),\ Z_\theta=\int \exp(f_\theta(x))dx
+$$
 
--   **Pros**: Tractability and flexibility are two conflicting objectives in generative modeling. Tractable models can be analytically evaluated and cheaply fit data (e.g. via a Gaussian or Laplace), but they cannot easily describe the structure in rich datasets. Flexible models can fit arbitrary structures in data, but evaluating, training, or sampling from these models is usually expensive. Diffusion models are both analytically tractable and flexible
-    
--   **Cons**: Diffusion models rely on a long Markov chain of diffusion steps to generate samples, so it can be quite expensive in terms of time and compute. New methods have been proposed to make the process much faster, but the sampling is still slower than GAN.
+where $Z_\theta$ is the [partition function](https://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics)), and $f_\theta$ is usually represented by a neural network, mostly CNN for image data. EBMs has two limitations that hinder its application, one is maximising its likelihood needs Markov-Chain-Monte-Carlo (MCMC) method, which is based on the score function, but quite expensive and slow; the other one is instability of the learning with non-convergence MCMC, which means the sample in the long run will be significantly different from the observed sample. Moreover, $Z_\theta$ is usually intractable for high-dimensional data $x$. 
 
-### MRI Reconstruction: A Quick Tutorial
+其中$Z_\theta$是[配分函数](https://zh.wikipedia.org/wiki/%E9%85%8D%E5%88%86%E5%87%BD%E6%95%B0)，$f_\theta$通常由神经网络表示，对于图像数据来说，主要由CNN表示。EBMs有两个限制阻碍了它的应用，一个是最大似然需要马尔科夫链-蒙特卡洛（MCMC）方法来估计，该方法基于score function，但相当昂贵和缓慢；另一个是不收敛的MCMC学习的不稳定性，这意味着长期的样本将与观察到的样本有显著不同。此外，$Z_\theta$对于高维数据$x$来说通常是难以解决的。
 
-## Optimisations
+The score function based MCMC makes the diffusion model a special case of EBMs. A new combination of diffusion model with EMBs has been proposed, named a diffusion recovery likelihood method [^18] to use the reverse process of diffusion model to learn samples from a sequence of EBMs, which makes it much easier and tractable to sample from marginal distribution. 
 
+基于分数函数的MCMC使扩散模型成为EBM的一个特例。一种新的扩散模型与EMB的结合，提出了一种扩散恢复似然法[^18]，利用扩散模型的反向过程，从一连串的EMB中学习样本，这使得从边际分布中采样变得更加容易和可行。
 
+Let us conclude with a summary of the advantages and disadvantages of the Diffusion Model:
 
-## Diffusion Model in MRI Reconstructions
+### Diffusion Models: Pros and Cons
 
-### 
+最后让我们总结一下Diffusion Model的优势和不足：
+
+**Pros**: 
+- Diffusion models are both analytically tractable and flexible.
+	- Evidence from the above derivation.
+- Diffusion models have better generalisation results than GANs.
+	- Evidence from [Dhariwal et al.](https://arxiv.org/pdf/2105.05233.pdf) [^19]: "We have shown that diffusion models, a class of likelihood-based models with a stationary training objective, can obtain better sample quality than state-of-the-art GANs. Our improved architecture is sufficient to achieve this on unconditional image generation tasks, and our classifier guidance technique allows us to do so on class-conditional tasks."
+- Generalisation Out-of-Distribution (OOD) data very well.
+	- Evidence from [Chung et al. 2021](https://arxiv.org/abs/2110.05243) [^20]:"... the generalization capability of the trained score function is far greater. In fact, when we try the reconstruction of data that is heavily out of training data distribution (e.g. different contrast, and even different anatomy), we are still able to achieve high fidelity reconstruction"
+- Natural advantage to combine with uncertainty quantification.
+	- Evidence from [Chung et al. 2021](https://arxiv.org/abs/2110.05243) [^20]: "... the proposed method is inherently stochastic, and for that, we can sample multiple reconstruction results from the same measurement vector $y$."
+
+**Cons**: 
+- Very slow sampling process. Though it could be optimised, such as leveraging a tradeoff between the generation quality and total time steps, also there are some new methods have been proposed to make the process much faster, but the sampling is still slower than GAN.
+	- Evidence from [Song et al. 2020](https://arxiv.org/abs/2010.02502) [^21]: "For example, it takes around 20 hours to sample 50k images of size 32 × 32 from a DDPM, but less than a minute to do so from a GAN on an Nvidia 2080 Ti GPU."
+	- Evidence from [Chung et al. 2021](https://arxiv.org/abs/2110.05243) [^20]: "Summing up, this results in about 10 minutes of reconstruction time for real-valued images, and 20 minutes of reconstruction time for complex-valued images."
+- Struggle to achieve competitive log-likelihood in comparison to autoregressive model
+	- 
+- Diffusion models assume that data is supported on a Euclidean space, i.e. a manifold with a flat geometry, and adding Gaussian noise would inevitably transform the data to continuous state spaces.
+	- 
+
+### MRI Reconstruction: A Quick Recap
 
 
 ## Credit
@@ -485,4 +558,16 @@ I have been inspired by the following blogs and thank these bloggers for their h
 [^8]: Song Y, Garg S, Shi J, et al. Sliced score matching: A scalable approach to density and score estimation[C]//Uncertainty in Artificial Intelligence. PMLR, 2020: 574-584.
 [^9]: Yang L, Zhang Z, Hong S. Diffusion Models: A Comprehensive Survey of Methods and Applications[J]. arXiv preprint arXiv:2209.00796, 2022.
 [^10]: Croitoru F A, Hondru V, Ionescu R T, et al. Diffusion Models in Vision: A Survey[J]. arXiv preprint arXiv:2209.04747, 2022.
-[^11]: Luo C. Understanding Diffusion Models: A Unified Perspective[J]. arXiv preprint arXiv:2208.11970, 2022.
+[^11]: A. Vahdat, K. Kreis, and J. Kautz, “Score-based generative modeling in latent space,” in Proceedings of NeurIPS, vol. 34, pp. 11287– 11302, 2021.
+[^12]: K. Pandey, A. Mukherjee, P. Rai, and A. Kumar, “VAEs meet diffusion models: Efficient and high-fidelity generation,” in Proceedings of NeurIPS Workshop on DGMs and Applications, 2021.
+[^13]: Luo C. Understanding Diffusion Models: A Unified Perspective[J]. arXiv preprint arXiv:2208.11970, 2022.
+[^14]: P. Dhariwal and A. Nichol, “Diffusion models beat gans on image synthesis,” in Proceedings of NeurIPS, vol. 34, pp. 8780–8794, 2021.
+[^15]: Zhisheng Xiao, Karsten Kreis, and Arash Vahdat. 2021. Tackling the generative learning trilemma with denoising diffusion gans. arXiv preprint arXiv:2112.07804 (2021).
+[^16]: Zhang Q, Chen Y. Diffusion normalizing flow[J]. Advances in Neural Information Processing Systems, 2021, 34: 16280-16291.
+[^17]: Emiel Hoogeboom, Alexey A Gritsenko, Jasmijn Bastings, Ben Poole, Rianne van den Berg, and Tim Salimans. 2021. Autoregressive Diffusion Models. In International Conference on Learning Representations.
+[^18]: Gao R, Song Y, Poole B, et al. Learning energy-based models by diffusion recovery likelihood[J]. arXiv preprint arXiv:2012.08125, 2020.
+[^19]: Dhariwal P, Nichol A. Diffusion models beat gans on image synthesis[J]. Advances in Neural Information Processing Systems, 2021, 34: 8780-8794.
+[^20]: Chung H, Ye J C. Score-based diffusion models for accelerated MRI[J]. Medical Image Analysis, 2022: 102479.
+[^21]: Song J, Meng C, Ermon S. Denoising diffusion implicit models[J]. arXiv preprint arXiv:2010.02502, 2020.
+
+

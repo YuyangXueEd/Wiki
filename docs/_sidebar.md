@@ -2,7 +2,7 @@
 * Academic
 
 	* [Blogs]
-		* [Diffusion Models in MRI Reconstruction: Theory, Algorithms, and Beyond](Blogs/Generative_Models/Diffusion_in_MRI_Recon.md)
+		* [Diffusion Models in MRI Reconstruction: Theory, Algorithms, and Beyond](Diffusion_in_MRI_Recon_Background.md)
 		* [Frameworks]
 			* [Jax Tutorial](Blogs/Frameworks/JAX_tutorial.md)
 			* [First_Flax](Blogs/Frameworks/First_Flax.md)
