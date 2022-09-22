@@ -1,8 +1,8 @@
 # Diffusion Models in MRI Reconstruction: Algorithms, Optimisations, and Beyond -- Part One: Background
 
-This blog is largely borrowed from papers and online tutorials. The content of the article has been compiled, understood and derived by me personally. If there are any problems please feel free to correct them. Thank you in advance!
+This blog is largely borrowed from tons of papers and online tutorials. The content of the article has been compiled, understood and derived by me personally. If there are any problems please feel free to correct them. Thank you in advance!
 
-本博客主要是受论文和网上博客启发所写的内容。文章的内容是由我个人整理、理解和推导的。如果有任何问题，请随时指正，谢谢。
+本博客主要是阅读大量论文和受网上博客启发所写的内容。文章的内容是由我个人整理、理解和推导的。如果有任何问题，请随时指正，谢谢。
 
 ## Introduction
 
@@ -22,7 +22,7 @@ This blog focuses on the application of the diffusion model as a generative mode
 
 ### Diffusion Model: What is it?
 
-Imagine that our data is a complex distribution and it may be difficult for us to get the full information about this distribution directly and completely. But like the 'Diffusion' described in thermodynamics, it is relatively easy to diffuse from a complex, high-density region to a simple, low-density region, such as a Gaussian distribution with 0 mean and 1 variance. If we can learn the inverse of this high to low process, then we can potentially generate our complex data from a simple Gaussian distribution.
+Imagine that our data is a complex distribution and it may be difficult for us to get the full information about this distribution directly and completely. But like the 'Diffusion' described in thermodynamics, it is relatively easy to diffuse from a complex, high-density region to a simple, low-density region, such as a Gaussian distribution with 0 mean and 1 variance. If we can learn the reverse of this high to low process, then we can potentially generate our complex data from a simple Gaussian distribution.
 
 想象一下，我们的数据是一个复杂的分布，我们可能很难直接、完整地获得这个分布的全部信息。但就像热力学中描述的“扩散”一样，从一个复杂的、高密度的区域扩散到一个简单的、低密度的区域是相对容易的，比如一个均值为0、方差为1的高斯分布。如果我们能学会这个从高到低过程的逆过程，那么我们就有可能从一个简单的高斯分布产生我们的复杂数据。
 
@@ -50,13 +50,13 @@ $$
 
 A simple illustration can be used here to represent the forward process. the smaller the $t$, the clearer the image; the larger the $t$, the closer the image is to Gaussian noise.
 
-这里可以用一个简单的插图来表示前进过程。$t$越小，图像越清晰；$t$越大，图像越接近高斯噪声。
+这里可以用一个简单的插图来表示前向过程。$t$越小，图像越清晰；$t$越大，图像越接近高斯噪声。
 
 ![Fig. 1 ](../../_media/Diffusion_in_MRI_Recon_Forward.png 'Fig. 1, The forward process, adding noise to each step.')
 
 Usually we do not use neural network in forward process, just use noise scheduler. If we set $\beta_0=0.0001$, and $\beta_T=0.02$, in a total time steps of $T=1000$, we can easily get $\beta_t$ of every step in a linear scheduler.
 
-通常我们在前进过程中不使用神经网络，只是使用噪声调度器。如果我们设置$\beta_0=0.0001$，$\beta_T=0.02$，在总时间步数为$T=1000$时，我们可以很容易地得到线性调度器中每一步的$\beta_t$。
+通常我们在前向过程中不使用神经网络，只是使用噪声调度器。如果我们设置$\beta_0=0.0001$，$\beta_T=0.02$，在总时间步数为$T=1000$时，我们可以很容易地得到线性调度器中每一步的$\beta_t$。
 
 ![Fig. 2, Noise scheduler](../../_media/Diffusion_in_MRI_Recon_beta_mean_variance.png 'Fig. 2, Noise scheduler')
 
@@ -70,7 +70,7 @@ $$
 
 Here we introduce $\epsilon_t$ as a $\mathcal{N}(0,\mathbb{I})$, and with reparameterization trick, which is introduced in [Lil'Log](https://lilianweng.github.io/posts/2018-08-12-vae/#reparameterization-trick), the  we can easily expand the single step equation to the whole forward process:
 
-这里我们把$\epsilon_t$作为$\mathcal{N}(0,\mathbb{I})$引入，用重参数化技巧，也就是在[Lil'Log](https://lilianweng.github.io/posts/2018-08-12-vae/#reparameterization-trick)中介绍的，我们可以很容易地把单步方程扩展到整个前进过程。
+这里我们把$\epsilon_t$作为$\mathcal{N}(0,\mathbb{I})$引入，用重参数化技巧，也就是在[Lil'Log](https://lilianweng.github.io/posts/2018-08-12-vae/#reparameterization-trick)中介绍的，我们可以很容易地把单步方程扩展到整个前向过程。
 
 $$
 q(x_t|x_0) = \sqrt{\alpha_t \alpha_{t-1} \dots \alpha_{0}}x_0 + \sqrt{1-\alpha_t\alpha_{t-1}\dots\alpha_0}\epsilon_0 
@@ -353,7 +353,7 @@ Remember we omit tons of irrelevant terms that not related to $x_{t-1}$? If you 
 还记得我们省略了大量与$x_{t-1}$无关的项吗？如果你想的话，你现在就可以把它们加进去，因为那个常数项$C$和$\theta$没有关系。
 
 $$
-L_{simple}=L^{simiple}_t+C = =\mathbb{E}_{t\sim(1,T), x_0, \epsilon}[\|\epsilon_t-\epsilon_\theta(\sqrt{\bar{\alpha_t}}x_0+\sqrt{1-\bar{\alpha_t}}\epsilon_0, t)\|^2] +C \tag{13}
+L_{simple}=L^{simiple}_t+C =\mathbb{E}_{t\sim(1,T), x_0, \epsilon}[\|\epsilon_t-\epsilon_\theta(\sqrt{\bar{\alpha_t}}x_0+\sqrt{1-\bar{\alpha_t}}\epsilon_0, t)\|^2] +C \tag{13}
 $$
 
 ![DDPM Algorithm](../../_media/Diffusion_in_MRI_Recon_DDPM_Algo.png 'Figure. 3, The Training and Sampling algorithm from DDPM, by Ho et al.')
@@ -427,7 +427,7 @@ As we mentioned above, the Diffusion Model is similar to the VAE in many ways. V
 
 正如我们上面提到的，扩散模型在许多方面与VAE相似。VAE使用一对*编码器*和*解码器*，首先将输入信息 $x$ 编码为隐向量 $z$，随后由解码器将其转换回原始空间。这样做是为了让编码器和解码器学习原始空间和潜空间之间的映射。扩散模型，以同样的方式，使用数据被映射到高斯分布，反向过程学习将潜伏表示转化为数据。这两个目标函数都可以导出为数据似然的下限，就像我们在公式$(7)$中所做的那样。以下插图很直接显示了VAE和扩散模型之间的联系。
 
-![VAE and Diffusion Model](../../_media/Diffusion_in_MRI_Recon_VAEandDIffusion.png 'Fig. 5, VAEs and Diffusion Probabilistic Models. Origin from [Turner](https://angusturner.github.io/generative_models/2021/06/29/diffusion-probabilistic-models-I.html)')
+![VAE and Diffusion Model](../../_media/Diffusion_in_MRI_Recon_VAEandDIffusion.png 'Fig. 5, VAEs and Diffusion Probabilistic Models. Origin from [Turner]')
 
 But there are still some prominent difference between them, which is concluded in the table below:
 
@@ -505,9 +505,9 @@ The score function based MCMC makes the diffusion model a special case of EBMs. 
 
 基于分数函数的MCMC使扩散模型成为EBM的一个特例。一种新的扩散模型与EMB的结合，提出了一种扩散恢复似然法[^18]，利用扩散模型的反向过程，从一连串的EMB中学习样本，这使得从边际分布中采样变得更加容易和可行。
 
-Let us conclude with a summary of the advantages and disadvantages of the Diffusion Model:
-
 ### Diffusion Models: Pros and Cons
+
+Let us conclude with a summary of the advantages and disadvantages of the Diffusion Model:
 
 最后让我们总结一下Diffusion Model的优势和不足：
 
@@ -517,7 +517,7 @@ Let us conclude with a summary of the advantages and disadvantages of the Diffus
 - Diffusion models have better generalisation results than GANs.
 	- Evidence from [Dhariwal et al.](https://arxiv.org/pdf/2105.05233.pdf) [^19]: "We have shown that diffusion models, a class of likelihood-based models with a stationary training objective, can obtain better sample quality than state-of-the-art GANs. Our improved architecture is sufficient to achieve this on unconditional image generation tasks, and our classifier guidance technique allows us to do so on class-conditional tasks."
 - Generalisation Out-of-Distribution (OOD) data very well.
-	- Evidence from [Chung et al. 2021](https://arxiv.org/abs/2110.05243) [^20]:"... the generalization capability of the trained score function is far greater. In fact, when we try the reconstruction of data that is heavily out of training data distribution (e.g. different contrast, and even different anatomy), we are still able to achieve high fidelity reconstruction"
+	- Evidence from [Chung et al. 2021](https://arxiv.org/abs/2110.05243) [^20]: "... the generalisation capability of the trained score function is far greater. In fact, when we try the reconstruction of data that is heavily out of training data distribution (e.g. different contrast, and even different anatomy), we are still able to achieve high fidelity reconstruction."
 - Natural advantage to combine with uncertainty quantification.
 	- Evidence from [Chung et al. 2021](https://arxiv.org/abs/2110.05243) [^20]: "... the proposed method is inherently stochastic, and for that, we can sample multiple reconstruction results from the same measurement vector $y$."
 
@@ -525,10 +525,8 @@ Let us conclude with a summary of the advantages and disadvantages of the Diffus
 - Very slow sampling process. Though it could be optimised, such as leveraging a tradeoff between the generation quality and total time steps, also there are some new methods have been proposed to make the process much faster, but the sampling is still slower than GAN.
 	- Evidence from [Song et al. 2020](https://arxiv.org/abs/2010.02502) [^21]: "For example, it takes around 20 hours to sample 50k images of size 32 × 32 from a DDPM, but less than a minute to do so from a GAN on an Nvidia 2080 Ti GPU."
 	- Evidence from [Chung et al. 2021](https://arxiv.org/abs/2110.05243) [^20]: "Summing up, this results in about 10 minutes of reconstruction time for real-valued images, and 20 minutes of reconstruction time for complex-valued images."
-- Struggle to achieve competitive log-likelihood in comparison to autoregressive model
-	- 
+- Struggle to achieve competitive log-likelihood in comparison to autoregressive model.
 - Diffusion models assume that data is supported on a Euclidean space, i.e. a manifold with a flat geometry, and adding Gaussian noise would inevitably transform the data to continuous state spaces.
-	- 
 
 ### MRI Reconstruction: A Quick Recap
 
@@ -551,23 +549,41 @@ I have been inspired by the following blogs and thank these bloggers for their h
 [^2]: Song Y, Ermon S. Generative modeling by estimating gradients of the data distribution[J]. Advances in Neural Information Processing Systems, 2019, 32.
 
 [^3]: Ho J, Jain A, Abbeel P. Denoising diffusion probabilistic models[J]. Advances in Neural Information Processing Systems, 2020, 33: 6840-6851.
+
 [^4]: Song Y, Sohl-Dickstein J, Kingma D P, et al. Score-based generative modeling through stochastic differential equations[J]. arXiv preprint arXiv:2011.13456, 2020.
+
 [^5]: Wikipedia, Langevin Dynamics, https://en.wikipedia.org/wiki/Langevin_dynamics
+
 [^6]: Welling M, Teh Y W. Bayesian learning via stochastic gradient Langevin dynamics[C]//Proceedings of the 28th international conference on machine learning (ICML-11). 2011: 681-688.
+
 [^7]: Vincent P. A connection between score matching and denoising autoencoders[J]. Neural computation, 2011, 23(7): 1661-1674.
+
 [^8]: Song Y, Garg S, Shi J, et al. Sliced score matching: A scalable approach to density and score estimation[C]//Uncertainty in Artificial Intelligence. PMLR, 2020: 574-584.
+
 [^9]: Yang L, Zhang Z, Hong S. Diffusion Models: A Comprehensive Survey of Methods and Applications[J]. arXiv preprint arXiv:2209.00796, 2022.
+
 [^10]: Croitoru F A, Hondru V, Ionescu R T, et al. Diffusion Models in Vision: A Survey[J]. arXiv preprint arXiv:2209.04747, 2022.
+
 [^11]: A. Vahdat, K. Kreis, and J. Kautz, “Score-based generative modeling in latent space,” in Proceedings of NeurIPS, vol. 34, pp. 11287– 11302, 2021.
+
 [^12]: K. Pandey, A. Mukherjee, P. Rai, and A. Kumar, “VAEs meet diffusion models: Efficient and high-fidelity generation,” in Proceedings of NeurIPS Workshop on DGMs and Applications, 2021.
+
 [^13]: Luo C. Understanding Diffusion Models: A Unified Perspective[J]. arXiv preprint arXiv:2208.11970, 2022.
+
 [^14]: P. Dhariwal and A. Nichol, “Diffusion models beat gans on image synthesis,” in Proceedings of NeurIPS, vol. 34, pp. 8780–8794, 2021.
+
 [^15]: Zhisheng Xiao, Karsten Kreis, and Arash Vahdat. 2021. Tackling the generative learning trilemma with denoising diffusion gans. arXiv preprint arXiv:2112.07804 (2021).
+
 [^16]: Zhang Q, Chen Y. Diffusion normalizing flow[J]. Advances in Neural Information Processing Systems, 2021, 34: 16280-16291.
+
 [^17]: Emiel Hoogeboom, Alexey A Gritsenko, Jasmijn Bastings, Ben Poole, Rianne van den Berg, and Tim Salimans. 2021. Autoregressive Diffusion Models. In International Conference on Learning Representations.
+
 [^18]: Gao R, Song Y, Poole B, et al. Learning energy-based models by diffusion recovery likelihood[J]. arXiv preprint arXiv:2012.08125, 2020.
+
 [^19]: Dhariwal P, Nichol A. Diffusion models beat gans on image synthesis[J]. Advances in Neural Information Processing Systems, 2021, 34: 8780-8794.
+
 [^20]: Chung H, Ye J C. Score-based diffusion models for accelerated MRI[J]. Medical Image Analysis, 2022: 102479.
+
 [^21]: Song J, Meng C, Ermon S. Denoising diffusion implicit models[J]. arXiv preprint arXiv:2010.02502, 2020.
 
 
