@@ -1,4 +1,4 @@
-# Diffusion Models in MRI Reconstruction: Theory, Algorithms, and Beyond
+# Diffusion Models in MRI Reconstruction: Algorithms, Optimisations, and Beyond
 
 This blog is largely borrowed from papers and online tutorials. The content of the article has been compiled, understood and derived by me personally. If there are any problems please feel free to correct them. Thank you in advance!
 
@@ -14,9 +14,9 @@ Nowadays, the diffusion model has been strongly developed in several fields, suc
 
 如今，扩散模型在多个领域得到了大力发展，如计算机视觉（图像生成、分割、图像到图像的翻译、超分辨率、图像编辑、文本到图像、医学成像、视频生成和点云）、音频（音频生成、音频转换、音频增强和文本到语音）以及其他（对抗性攻击和防御、自然语言、时间序列、分子生成等等）。 
 
-This blog focuses on the application of the diffusion model as a generative model for MRI reconstruction in medical images, starting with the algorithm of the diffusion model, introducing and deriving it from a shallow to a deeper level, and finally introducing some SOTA variants and discussing some unresolved issues and future directions.  
+This blog focuses on the application of the diffusion model as a generative model for MRI reconstruction in medical images, starting with the algorithm of the diffusion model, introducing and deriving it from a shallow to a deeper level. In the process of analysing the advantages and disadvantages of the Diffusion Model some optimisation methods are introduced, and finally introducing some SOTA variants and discussing some unresolved issues and future directions.  
 
-本博客主要讨论扩散模型作为生成模型在医学影像中MRI重构的应用。从扩散模型的算法开始，我们将由浅入深地介绍和推导，最后介绍一些SOTA的变体，并讨论一些未解决的问题和未来的方向。 
+本博客主要讨论扩散模型作为生成模型在医学影像中MRI重构的应用。从扩散模型的算法开始，我们将由浅入深地介绍和推导，在分析Diffusion Model的优劣过程中介绍一些优化方法，最后介绍一些SOTA和相关应用，并讨论一些未解决的问题和未来的方向。 
 
 ## Background
 
@@ -123,7 +123,7 @@ According to our noise scheduler above, the $\Sigma_\theta$ here is fixed, so he
 
 根据我们上面的噪声调度器，这里的$\Sigma_\theta$是固定的，所以这里我们只需要预测平均值$\mu_\theta$，它可以由一个神经网络来近似。
 
-## Loss Function
+#### Loss Function
 
 We can now start by looking at the loss function of this model. A detailed and dynamic derivation can be found in the video [Diffusion Models | Paper Explanation | Math Explained](https://youtu.be/HoKDTa5jHvg?t=573).We find its negative cross-entropy for the target distribution $-\log(p_\theta(x_0))$. Since it is intractable, and the diffusion model can also be treated as a  Markovian hierarchical VAE, we can use variational lower bound (VLB) to optimise the loss function:
 
@@ -215,9 +215,9 @@ $$
 \end{aligned}
 $$
 
-Take a closer look at the first item, we can see that the numerator is the forward process, and the denominator is actually a pure Gaussian distribution, which makes the first term a very small number -- which means they are very similar, and we can omit that: $L_T$is constant and can be ignored during training because $q$ has no learnable parameters and $x_T$ is a Gaussian noise;  As for the second term, both the numerator and the denominator are in the same form, a single forward and reverse process. The last term, [Ho et al.](https://arxiv.org/abs/2006.11239) models $L_0$ using a separate discrete decoder derived from $\mathcal{N}(x0;\mu_\theta(x_1,1),\Sigma_\theta(x1,1))$. A detailed introduction is in [Outlier's video](https://youtu.be/HoKDTa5jHvg?t=1456).
+Take a closer look at the first item, we can see that the numerator is the forward process, and the denominator is actually a pure Gaussian distribution, which makes the first term a very small number -- which means they are very similar, and we can omit that: $L_T$is constant and can be ignored during training because $q$ has no learnable parameters and $x_T$ is a Gaussian noise;  As for the second term, both the numerator and the denominator are in the same form, a single forward and reverse process. The last term, DDPM models $L_0$ using a separate discrete decoder derived from $\mathcal{N}(x0;\mu_\theta(x_1,1),\Sigma_\theta(x1,1))$. A detailed introduction is in [Outlier's video](https://youtu.be/HoKDTa5jHvg?t=1456) and [AssemblyAI](https://www.assemblyai.com/blog/diffusion-models-for-machine-learning-introduction/).
 
-仔细看看第一项，我们可以看到分子是正向过程，而支配者实际上是一个纯高斯分布，这使得第一项成为一个非常小的数字--这意味着它们非常相似，我们可以省略:$L_T$是常数，在训练中可以忽略，因为$q$没有可学习的参数，$x_T$是高斯噪声；至于第二项，分子和分母的形式都一样，是一个单步正向和反向过程。最后一项，[Ho et al.](https://arxiv.org/abs/2006.11239)使用由$\mathcal{N}(x0;\mu_\theta(x_1,1),\Sigma_\theta(x1,1))$派生的单独的离散解码器对$L_0$建模。详细介绍见[Outlier的视频](https://youtu.be/HoKDTa5jHvg?t=1456)。
+仔细看看第一项，我们可以看到分子是正向过程，而支配者实际上是一个纯高斯分布，这使得第一项成为一个非常小的数字--这意味着它们非常相似，我们可以省略:$L_T$是常数，在训练中可以忽略，因为$q$没有可学习的参数，$x_T$是高斯噪声；至于第二项，分子和分母的形式都一样，是一个单步正向和反向过程。最后一项，DDPM 使用由$\mathcal{N}(x0;\mu_\theta(x_1,1),\Sigma_\theta(x1,1))$派生的单独的离散解码器对$L_0$建模。详细介绍见[Outlier的视频](https://youtu.be/HoKDTa5jHvg?t=1456)和[AssemblyAI](https://www.assemblyai.com/blog/diffusion-models-for-machine-learning-introduction/)。
 
 It is noteworthy that the reverse conditional probability is tractable when conditioned on $x_0$, then we can omit the step $t$:
 
@@ -337,7 +337,9 @@ L_t&=\mathbb{E}\left[\frac{1}{2\|\Sigma_\theta(x_t,t)\|^2_2}\|\tilde{\mu}(x_t,t)
 \end{aligned}
 $$
 
-[Ho et al.](https://arxiv.org/abs/2006.11239) found out during their experiments that omit the scaling term brings better sampling quality and easier implementation. Thus we can have a simple form of the loss:
+They found out during their experiments that omit the scaling term brings DDPM better sampling quality and easier implementation. Thus we can have a simple form of the loss:
+
+他们的实验中发现，省略缩放项会给DDPM带来更好的采样质量，并且更容易实现。因此，我们可以有一个简单的损失函数：
 
 $$
 \begin{aligned}
@@ -351,29 +353,112 @@ Remember we omit tons of irrelevant terms that not related to $x_{t-1}$? If you 
 还记得我们省略了大量与$x_{t-1}$无关的项吗？如果你想的话，你现在就可以把它们加进去，因为那个常数项$C$和$\theta$没有关系。
 
 $$
-L_{simple}=L^{simiple}_t+C
+L_{simple}=L^{simiple}_t+C = =\mathbb{E}_{t\sim(1,T), x_0, \epsilon}[\|\epsilon_t-\epsilon_\theta(\sqrt{\bar{\alpha_t}}x_0+\sqrt{1-\bar{\alpha_t}}\epsilon_0, t)\|^2] +C \tag{13}
 $$
 
 ![DDPM Algorithm](../../_media/Diffusion_in_MRI_Recon_DDPM_Algo.png 'Figure. 3, The Training and Sampling algorithm from DDPM, by Ho et al.')
 
+#### Another side of the coin: Score-Based Model
 
+What we did above is introducing denoising diffusion probabilistic model (DDPM), which consists of two parameterised Markov chains and uses variational inference (VI) to produce samples matching the original data after a finite time. However, you also heard about something called Score-Based Model (SBM), acting in the same way like diffusion model, which makes you confuse. In fact, it is just two sides of a coin, revealing two equivalent formulations of the same phenomena.
 
----
+我们上面介绍的是 Denoising Diffusion Probabilistic Model（DDPM），它由两个参数化的马尔科夫链组成，并使用 Variational Inference（VI）在有限时间后产生与原始数据相匹配的样本。然而，你也听说过一种叫做 Score-based Model（SBM）的东西，其作用方式与扩散模型相同，这使你感到困惑。事实上，这只是一枚硬币的两面，揭示了同一现象的两种等价的表述。
 
+Song et al. [^4]'s work was detailed in his best paper at [ICLR 2021](https://www.youtube.com/watch?v=L9ZegT87QK8). It has the same setting as DDPM, the original data distribution $p_0(x)$ is perturbed by noise to the perturbed distribution $p_t(x)$, and finally get to be the prior distribution $p_T(x)$ (pure noise). Song et al. treat this process as a Stochastic Differential Equation (SDE), which is a generalisation to Ordinary Differential Equation (ODE). The process can be interpreted as gradually perturb the data distribution $p_0(x)$ to the prior distribution  $p_T(x)$ with the stochastic process for time interval $t$. The solution to the SDE can be expressed as:
 
+Song 等人在 [ICLR 2021](https://www.youtube.com/watch?v=L9ZegT87QK8) 会议中的最佳论文中详细介绍了他的工作。它的设置与DDPM相同，原始数据分布$p_0(x)$被噪声扰动为扰动分布$p_t(x)$，最后得到的是先验分布$p_T(x)$（纯噪声）。Song等人将这一过程视为随机微分方程（SDE），它是对普通微分方程（ODE）的一种泛化。这个过程可以解释为用时间间隔$t$的随机过程逐渐扰动数据分布$p_0(x)$到先验分布$p_T(x)$。SDE的解可以表示为：
 
+$$
+dx = \underbrace{f(x,t)}_{deterministic\ drift}dt + \underbrace{g(t)}_{stochastic\ di
+f\!fusion}dw, \tag{14}
+$$
 
+where $f(x,t)$ is what you would normally have in an ODE, it governs the deterministic property of the stochastic process; and the right hand term $g(t)dw$ controls stochastic diffusion, $dw$ is a brownian motion, or you can understand as a infinitesimal gaussian noise. This is a forward process, just like DDPM does. If we can learn the reverse process, we will be able to start from a random noise vector simulate the reverse stochastic process and obtain a sample from the data distribution. Perturbing data with SDE has a unique merit that is for any stochastic process given by an SDE, there exists a corresponding Reverse SDE (Anderson, 1982) that gives the reverse process, which can be written as:
 
+其中$f(x,t)$是你在ODE中通常会有的项，它控制着随机过程的确定性属性；而右项$g(t)dw$控制随机扩散，$dw$是布朗运动，或者你可以理解为一个无限小的高斯噪声。这是一个正向过程，就像DDPM一样。如果我们能学会反向过程，我们就能从一个随机噪声向量开始模拟反向随机过程，并从数据分布中获得一个样本。用SDE来扰动数据有一个独特的优点，就是对于任何由SDE给出的随机过程，都存在一个相应的给出了反向过程的Reverse SDE（Anderson，1982），可以写成：
 
+$$
+d(x)=[f(x,t)-g^2(t) \color{red}\triangledown_x \log p_t(x)\color{black}]dt+g(t)d\bar w \tag{15}
+$$
 
+where $dt$ and $dw$ here are both negative infinitesimal time step and backward random motion. The red part $\triangledown_x \log p_t(x)$ is known as the score function of the distribution $p(t)$. Since the reverse process has a closed form, preserving data with SDE is particularly nice. In order to describe the reverse process, we need to estimate score function from data.
 
+其中$dt$和$dw$在这里是负的无限小时间步长和后向随机运动。红色部分$\triangledown_x\log p_t(x)$被称为分布$p(t)$的 score function。由于反向过程有一个解析解，用SDE保存数据特征是特别好的。为了描述反向过程，我们需要从数据中估计score function。
 
+You may ask why score function can use to estimate the trajectory of the process. Then we need to mention Langevin Dynamics, which is a physical concept to the mathematical modeling of the dynamics of molecular systems [^5]. Combined with the stochastic gradient descent, stochastic gradient Langevin dynamics ([Welling & Teh 2011](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.226.363)) [^6] can produce samples from a probability density $p(x)$ using only the gradients $\triangledown_x \log⁡ p(x)$ in a Markov chain of updates:
 
+你可能会问，为什么 score function 可以用来估计过程的轨迹。那么我们就需要提到朗之万动力学，它是一个物理概念，用于分子系统动力学的数学建模[^5]。结合随机梯度下降法，随机梯度朗之万动力学（[Welling & Teh 2011](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.226.363)）[^6] 可以从概率密度$p(x)$中产生样本，只使用马尔科夫更新链中的梯度$\triangledown_x \log p(x)$：
 
+$$
+x_t = x_{t-1} + \frac{\delta}{2}\triangledown_x\log q(x_{t-1}) + \sqrt{\delta}\epsilon_t,\ \epsilon_t \sim \mathcal{N}(0, \mathbb{I})
+$$
 
+where $\delta$ is the step size. We can see this is a forward updating process. Compared to standard SGD, stochastic gradient Langevin dynamics injects Gaussian noise into the parameter updates to avoid collapses into local minima. When $T$ approaching infinity, and $\delta$ close to $0$, $x_t$ will be the true probability density $p(x)$.
 
+其中$\delta$是步骤大小。我们可以看到这是一个向前更新的过程。与标准SGD相比，随机梯度朗之万动力学将高斯噪声注入参数更新中，以避免陷入到局部最小值。当$T$接近无穷大，且$\delta$接近$0$时，$x_t$便是真实的概率密度$p(x)$。
+
+Given an independent identical distribution sample from marginal distribution $p_t(x)$, this sample can be obtained easily with the forward process. Then, we proposed to learn a time-dependent score-based model: $s_\theta(x, t)\approx \triangledown_x\log p_t(x)$, using deep neural network to predict the real score function. The objective function is defined as follow:
+
+给定一个来自边际分布$p_t(x)$的独立同分布样本，这个样本可以通过正向过程轻松获得。然后，我们提出学习一个基于时间的分数模型：$s_\theta(x, t)\approx\triangledown_x\log p_t(x)$，使用深度神经网络来逼近真实的分数函数。目标函数定义如下。
+
+$$
+\min_\theta \mathbb{E}_{t\sim \mathcal{U}(0,T)}\mathbb{E}_{x\sim{p_t(x)}}\left[\lambda(t)\|\underbrace{s_\theta(x,t)}_{model\ score} - \underbrace{\triangledown_x\log p_t(x)}_{data\ score} \|^2_2\right] \tag{16}
+$$
+
+where $t$ is drawn from a uniform distribution as time step, $\lambda(t)$ is a positive weighting function, and the objective is essentially the mean Euclidean distance between the neural network prediction and the ground truth score function. However, we cannot get the ground truth of the score function. So we require some techniques such as Score Matching (Hyvarinen, 2005), which can transform the objective to an equivalent form that does not involve the ground truth of score function. Other techniques like denoising score matching ([Vincent, 2011](http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf)) [^7]or sliced score matching ([Song et al., 2019](https://arxiv.org/abs/1905.07088)) [^8] will not be introduced in this article due to the limit of length.
+
+其中，$t$从均匀分布中抽取作为时间步长，$\lambda(t)$是一个正的加权函数，目标函数基本上是神经网络预测和真实 score function 之间的平均欧氏距离。然而，我们无法得到真实的 score function。因此，我们需要一些技术，如Score Matching（Hyvarinen，2005），它可以将目标转化为不涉及真实 score function 的等效形式。由于篇幅所限，本文将不介绍其他技术，如 denoising score matching（[Vincent, 2011](http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf)）[^7] 或 sliced score matching（[Song et al., 2019](https://arxiv.org/abs/1905.07088)）[^8]。
+
+You may find that the objective of SDE is very similar to the Eq. $(13)$. In fact, according to the survey paper by Yang et al. [^9], if setting $s_\theta(x_t, t)=-\frac{\epsilon_\theta(x_t, t)}{2\sigma_t}$, DDPM and score based model are equal! In practice, one needs to solve the reverse SDE using discretisation, and the resulting process resembles the reverse chain in DDPM.
+
+你可能会发现，SDE的目标与公式$(13)$非常相似。事实上，根据Yang等人的综述论文[^9]，如果设定$s_\theta(x_t, t)=-\frac{\epsilon_\theta(x_t, t)}{2\sigma_t}$，DDPM 和 score based model 是相等的! 在实践中，我们需要用离散化的方法来解决 Reverse SDE，所得到的过程类似于DDPM中的反向过程。
 
 ### Diffusion Models: Pros and Cons
+
+Generative models have a long history of development, from the early days of VAE, to the more recent GAN, Normalising flow, Autoregressive Model and Energy-based Model, the merits of which have been debated by scholars. The emergence of Diffusion Model has increased the number of comparisons between the various generative models. Yang et al. [^9] and Croitoru et al. [^10] compared these models with diffusion model, including theirs commons and differences.
+
+生成模型有很长的发展历史，从早期的VAE，到最近的GAN、归一化流、自回归模型和基于能量的模型，这些模型的优劣一直被学者们争论。扩散模型的出现，增加了各种生成模型之间的比较。Yang 等人 [^9] 和Croitoru 等人  [^10]将这些模型与扩散模型进行了比较，包括其共性和差异。
+
+![Generative Overview](../../_media/Diffusion_in_MRI_Recon_Generative_Overview.png 'Overview of different types of generative models. Image from LilLog')
+
+#### Variational AutoEncoder (VAE)
+
+As we mentioned above, the Diffusion Model is similar to the VAE in many ways. VAE uses a pair of *encoder* and *decoder* to first encode the input information $x$ into the latent vector $z$, which is later converted back to the original space by the decoder. This is done to allow the encoder and decoder to learn the mapping between raw space and latent space. Diffusion model, in the same way, using the data is mapped to a Gaussian distribution and the reverse process learns to transform the latent representations into data. Both objective function can be derived as a lower-bound of the data likelihood, just like we did in Eq. $(7)$. Here is a good illustration that straightforwardly shows the connection between VAE and Diffusion model.
+
+![]()
+
+
+The introductory article by Luo [^11] and [post](https://angusturner.github.io/generative_models/2021/06/29/diffusion-probabilistic-models-I.html) by Turner does a good job of explaining how to derive from the basic VAE to the Diffusion Model, if you are interested.
+
+
+
+
+#### GAN
+
+#### Normalising Flow
+
+#### Autoregressive Model
+
+#### Energy-Based Model
+
+
+
+
+
+-   **Pros**: Tractability and flexibility are two conflicting objectives in generative modeling. Tractable models can be analytically evaluated and cheaply fit data (e.g. via a Gaussian or Laplace), but they cannot easily describe the structure in rich datasets. Flexible models can fit arbitrary structures in data, but evaluating, training, or sampling from these models is usually expensive. Diffusion models are both analytically tractable and flexible
+    
+-   **Cons**: Diffusion models rely on a long Markov chain of diffusion steps to generate samples, so it can be quite expensive in terms of time and compute. New methods have been proposed to make the process much faster, but the sampling is still slower than GAN.
+
+### MRI Reconstruction: A Quick Tutorial
+
+## Optimisations
+
+
+
+## Diffusion Model in MRI Reconstructions
+
+### 
+
 
 ## Credit
 
@@ -382,6 +467,8 @@ I have been inspired by the following blogs and thank these bloggers for their h
 - [Lil'Log -- What are Diffusion Models?](https://lilianweng.github.io/posts/2021-07-11-diffusion-models/)
 - [Ayan Das -- An introduction to Diffusion Probabilistic Models](https://ayandas.me/blog-tut/2021/12/04/diffusion-prob-models.html)
 - [Maciej Domagała -- The recent rise of diffusion-based models](https://maciejdomagala.github.io/generative_models/2022/06/06/The-recent-rise-of-diffusion-based-models.html)
+- [Ryan O'Connor -- Introduction to Diffusion Models for Machine Learning](https://www.assemblyai.com/blog/diffusion-models-for-machine-learning-introduction/)
+- [Angus Turner -- Diffusion Models as a kind of VAE](https://angusturner.github.io/generative_models/2021/06/29/diffusion-probabilistic-models-I.html)
 
 
 ## Reference
@@ -389,4 +476,13 @@ I have been inspired by the following blogs and thank these bloggers for their h
 [^1]: Sohl-Dickstein J, Weiss E, Maheswaranathan N, et al. Deep unsupervised learning using nonequilibrium thermodynamics[C]//International Conference on Machine Learning. PMLR, 2015: 2256-2265.
 
 [^2]: Song Y, Ermon S. Generative modeling by estimating gradients of the data distribution[J]. Advances in Neural Information Processing Systems, 2019, 32.
+
 [^3]: Ho J, Jain A, Abbeel P. Denoising diffusion probabilistic models[J]. Advances in Neural Information Processing Systems, 2020, 33: 6840-6851.
+[^4]: Song Y, Sohl-Dickstein J, Kingma D P, et al. Score-based generative modeling through stochastic differential equations[J]. arXiv preprint arXiv:2011.13456, 2020.
+[^5]: Wikipedia, Langevin Dynamics, https://en.wikipedia.org/wiki/Langevin_dynamics
+[^6]: Welling M, Teh Y W. Bayesian learning via stochastic gradient Langevin dynamics[C]//Proceedings of the 28th international conference on machine learning (ICML-11). 2011: 681-688.
+[^7]: Vincent P. A connection between score matching and denoising autoencoders[J]. Neural computation, 2011, 23(7): 1661-1674.
+[^8]: Song Y, Garg S, Shi J, et al. Sliced score matching: A scalable approach to density and score estimation[C]//Uncertainty in Artificial Intelligence. PMLR, 2020: 574-584.
+[^9]: Yang L, Zhang Z, Hong S. Diffusion Models: A Comprehensive Survey of Methods and Applications[J]. arXiv preprint arXiv:2209.00796, 2022.
+[^10]: Croitoru F A, Hondru V, Ionescu R T, et al. Diffusion Models in Vision: A Survey[J]. arXiv preprint arXiv:2209.04747, 2022.
+[^11]: Luo C. Understanding Diffusion Models: A Unified Perspective[J]. arXiv preprint arXiv:2208.11970, 2022.
