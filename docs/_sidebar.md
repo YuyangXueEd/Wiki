@@ -2,9 +2,9 @@
 * Academic
 
 	* [Blogs]
-		* [Diffusion Models in MRI Reconstruction: Algorithms, Optimisations, and Beyond -- Part One: Background](Diffusion_in_MRI_Recon_Background.md)
-		* [Diffusion Models in MRI Reconstruction: Algorithms, Optimisations, and Beyond -- Part Two: Optimisations](Diffusion_in_MRI_Recon_Optimisations.md)
-		* [Diffusion Models in MRI Reconstruction: Algorithms, Optimisation, and Beyond -- Part Three: Applications](Diffusion_in_MRI_Recon_Applications.md)
+		* [Diffusion Models in MRI Reconstruction: Algorithms, Optimisations, and Beyond -- Part One: Background](Blogs/Generative_Models/Diffusion_in_MRI_Recon_Background.md)
+		* [Diffusion Models in MRI Reconstruction: Algorithms, Optimisations, and Beyond -- Part Two: Optimisations](Blogs/Generative_Models/Diffusion_in_MRI_Recon_Optimisations.md)
+		* [Diffusion Models in MRI Reconstruction: Algorithms, Optimisation, and Beyond -- Part Three: Applications](Blogs/Generative_Models/Diffusion_in_MRI_Recon_Applications.md)
 		* [Frameworks]
 			* [Jax Tutorial](Blogs/Frameworks/JAX_tutorial.md)
 			* [First_Flax](Blogs/Frameworks/First_Flax.md)

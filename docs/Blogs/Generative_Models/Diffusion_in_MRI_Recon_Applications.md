@@ -10,13 +10,16 @@ This blog is largely borrowed from papers and online tutorials. The content of t
 
 #### Solving inverse problems in medical imaging with score-based generative models [^1]
 
-#### 
+
+
+#### Score-based diffusion models for accelerated MRI [^2]
 
 #### 
 
 ### DDPM-Based Diffusion Models
 
-####
+#### Measurement-conditioned Denoising Diffusion Probabilistic Model for Under-sampled Medical Image Reconstruction
+
 
 #### 
 
@@ -27,13 +30,8 @@ This blog is largely borrowed from papers and online tutorials. The content of t
 
 I have been inspired by the following blogs and thank these bloggers for their hard work.
 
-- [Lil'Log -- What are Diffusion Models?](https://lilianweng.github.io/posts/2021-07-11-diffusion-models/)
-- [Ayan Das -- An introduction to Diffusion Probabilistic Models](https://ayandas.me/blog-tut/2021/12/04/diffusion-prob-models.html)
-- [Maciej Domagała -- The recent rise of diffusion-based models](https://maciejdomagala.github.io/generative_models/2022/06/06/The-recent-rise-of-diffusion-based-models.html)
-- [Ryan O'Connor -- Introduction to Diffusion Models for Machine Learning](https://www.assemblyai.com/blog/diffusion-models-for-machine-learning-introduction/)
-- [Angus Turner -- Diffusion Models as a kind of VAE](https://angusturner.github.io/generative_models/2021/06/29/diffusion-probabilistic-models-I.html)
-
 
 ## Reference
 
 [^1]: Song Y, Shen L, Xing L, et al. Solving inverse problems in medical imaging with score-based generative models[J]. arXiv preprint arXiv:2111.08005, 2021.
+[^2]: Chung H, Ye J C. Score-based diffusion models for accelerated MRI[J]. Medical Image Analysis, 2022: 102479.
