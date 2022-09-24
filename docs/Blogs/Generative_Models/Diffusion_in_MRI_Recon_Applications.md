@@ -226,7 +226,7 @@ In the multi-coil images, they consider the SOSS type and the hybrid type method
 	- For pooling and unpooling, we adopt anti-aliasing pooling of Zhang et al. [^10] ,
 	- 4 different levels of scale, with 4 residual networks at each level.
 	- Conditioning of network with the time index $t$ is performed with Fourier features [^11] , where the conditional features are added to the encoder features.
-	- ![](Diffusion_Application_Chung_MRI_PC_architecture.png 'Fig. 10, Detailed Network structure of score-based model. Origin: Chung et al., 2022.')
+	- ![](../../_media/Diffusion_Application_Chung_MRI_PC_architecture.png 'Fig. 10, Detailed Network structure of score-based model. Origin: Chung et al., 2022.')
 - use $N = 2000; M = 1$ iterations for inference as default.
 
 ##### Pros and Cons
@@ -259,15 +259,116 @@ In the multi-coil images, they consider the SOSS type and the hybrid type method
 	- ![](../../_media/Diffusion_Application_Chung_MRI_limitations.png 'Fig. 11, Limitations: OOD recon and extreme case recon. Origin: Chung et al., 2022.')
 
 
-
-#### 
+#### Self-Score: Self-Supervised Learning on Score-Based Models for MRI Reconstruction [^18] 
 
 ### DDPM-Based Diffusion Models
 
-#### Measurement-conditioned Denoising Diffusion Probabilistic Model for Under-sampled Medical Image Reconstruction
+#### Measurement-conditioned Denoising Diffusion Probabilistic Model for Under-sampled Medical Image Reconstruction [^14] 
+
+The authors designed a DDPM-based model since DDPM is more flexible to control the noise distribution than score-based model. The model is measurement-conditions, meaning the undersampled measurement data can directly used in training phase. Thus, no need to consider data-consistency during sampling.
+
+作者设计了一个基于 DDPM 的模型，因为 DDPM 比 score-based model 在控制噪声分布方面更加灵活。该模型是以 measurement 为条件的，这意味着降采样的测量数据可以直接用于训练阶段。因此，在采样期间不需要考虑数据的一致性。
+
+They defined the MRI inverse problem in a way of $y_M=MAx+\epsilon_M$, where $M$ is a diagonal matrix with sampling pattern $\Omega$, $y_M$ and $\epsilon_M$ are both vectors with $0$ at their non-sampled positions. They further defined $M^c=\mathbb{I}-M$, where $c$ means complement and $y_{M^c}=M^cAx$ which represents the non-sampled measurement. Assuming $x$ follows a distribution of $q(x)$ and given $M$, the posterior distribution, a.k.a, the undersampled reconstruction task, can be derived as:
+
+作者以$y_M=MAx+\epsilon_M$的方式定义了MRI逆问题，其中$M$是一个对角矩阵，采样模式为$\Omega$，$y_M$和$\epsilon_M$都是在其非采样位置设为$0$的向量。进一步，他们定义了$M^c=\mathbb{I}-M$，其中$c$表示补数，$y_{M^c}=M^cAx$，表示非采样测量。假设$x$遵循$q(x)$的分布，并给定$M$，后验分布，也就是采样重建任务，可推导为：
+
+$$
+q(x|y_M,M)=\frac{q(x,y_M)|M}{q(y)}=\frac{q(y_M|x,M)q(x)}{q(y)} \tag{9}
+$$
+
+The author omits the noise $\epsilon$ here, thus $x = A^{-1}(y_M+y_{M^c})$, then the problem is transformed to estimate $q(y_{M^c}|M, y_M)$. Since the $M^c$ is complement to $M$, also as the condition, the task can be replaced to $q(y_{M^c}|M^c, y_M)$, and the reverse process can be interpreted as:
+
+作者在这里省略了噪声$\epsilon$，因此$x=A^{-1}(y_M+y_{M^c})$，那么问题就转化为估计$q(y_{M^c}|M, y_M)$。由于$M^c$是对$M$的补，同样作为条件，任务可以替换为$q(y_{M^c}|M^c, y_M)$，则反向过程可以写为。
+
+$$
+p_\theta(y_{M^c,0}|M^c, y_M):=\int p_\theta(y_{M^c,0:T}|M^c, y_M)dy_{M^c, 1:T} \tag{10}
+$$
+
+where $y_{M^c,0}=y_{M^c}$. $p_\theta(y_{M^c,0:T}|M^c,y_M)$ is defined as:
+
+$$
+p_\theta(y_{M^c, 0:T}|M^c, y_M):=p(y_{M^c, T}|M^c, y_M)\prod^T_{t=1}p_\theta(y_{M^c, t-1}|y_{M^c,t}, M^c, y_M)
+$$
+
+It can be reparameterised by:
+
+$$
+p_\theta(y_{M^c, t-1}|y_{M^c, t}, M^c, y_M):=\mathcal{N}(\mu_\theta(y_{M^c,t},M^c,y_M), \sigma^2_t M^c)
+$$
+
+where $\sigma^2_tM^c$ is the covariance matrix and it means the noise is only added at non-sampled position because of all components of $y_{M^c},t$ at under-sampled positions are always $0$. Here we can define the forward process that Gaussian noise is gradually added to the non-sampled measurements $y_{M^c,0}$ has the following form:
+
+$$
+q(y_{M^c,1:T}|y_{M^c,0}, M^c, y_M):=\prod^T_{t=1}q(y_{M^c,t}|y_{M^c,t-1},M^c,y_M)
+$$
+
+$$
+q(y_{M^c,1:T}|y_{M^c,0}, M^c, y_M):=\mathcal{N}(\alpha_t y_{M^c, t-1}, \beta^2_t M^c)
+$$
+
+Here we restrict $\alpha^2_t+\beta^2_t=1$, and let $\bar{\alpha}_t=\prod^t_{i=1}\alpha_i$, $\bar{\beta}^2_t=\sum^t_{i=1}\frac{\bar{\alpha}^2_t}{\bar{\alpha}^2_i}\beta^2_i$, and then we can derive that:
+
+$$
+q(y_{M^c,t}|y_{M^c,0},M^c, y_M)=\mathcal{N}(\bar{\alpha}_ty_{M^c,0}, \bar{\beta}^2_tM^c) \tag{11}
+$$
+
+$$
+q(y_{M^c,t-1}|y_{M^c,t}, y_{M^c,0}, M, y_M)=\mathcal{N}(\tilde{\mu}_t, \tilde{\beta}^2_tM^c) \tag{12}
+$$
+
+where $\tilde{\mu}_t = \frac{\alpha_t\bar{\beta}^2_{t-1}}{\bar{\beta}^2_{t}}y_{M^c,t}+\frac{\alpha_{t-1}\bar{\beta}^2_{t}}{\bar{\beta}^2_{t}}y_{M^c,0}$, $\tilde{\beta}_t=\frac{\beta\bar{\beta}_{t-1}}{\bar{\beta}_t}=$.
+
+The training and sampling processing is very much similar to DDPM. More derivation can check the [supplement material](https://static-content.springer.com/esm/chp%3A10.1007%2F978-3-031-16446-0_62/MediaObjects/539249_1_En_62_MOESM1_ESM.pdf) by the author.
+
+![](../../_media/Diffusion_Application_Xie_algos.png 'Fig. 10, Traning and Sampling algorithm. Origin: Xie et al. 2022.')
+
+##### Experiments
+
+###### Dataset
+
+- FastMRI single-coil knee [^8] 
+	- Drop the first and last five slices to avoid training the model with noise-only data
+- 
+
+###### Network and Training
+
+- The specific design for $\epsilon_\theta(y_{M^c,t}, t, M^c, y_M)$ in the experiments is given as follows: $\epsilon_\theta(y_{M^c,t}, t, M^c, y_M)=M^c f(g(A^{-1}(y_{M^c,t}+yM),A^{-1}y_M),t;\theta)$, $f$ is a deep neural network and $g$ is the concatenation operation.
+	- The author only use the magnitude of $x$, as the final image.
+- - based on guided-DDPM [^15] 
+	- They first use the cosine schedule, and then multiply $\beta_t$ by 0.5
+	- $\beta_t$ multiplied by 0.5 so that $\bar{\beta_T}\approx 0.5$
+- Even the sampling steps decrease to 250, PSNR only reduces a little
+	- 20 samples average with 250 sampling steps may be a good choice
+
+##### Pros and Cons
+
+###### *Pros*
+
+- The diffusion and sampling process are defined in measurement domain rather than image domain
+- The diffusion process is conditioned on under-sampling mask so that data consistency is contained in the model naturally and inherently
+	- Evidence: "There is no need to execute extra data consistency when sampling"
+- Uncertainty: allows us to sample multiple reconstruction results from the same measurements $y$
+	- Evidence: "We are able to quantify uncertainty for $q(x|y)$, such as pixel-variance."
+	- Evidence: "As the acceleration factor is increased, we see that the uncertainty increases correspondingly."
+- High quality of $q(x|y)$ and it outperforms baseline models and previous score-based methods
+	- Evidence: "... virtually more realistic structures and less error in the zoomed-in image than ZF and U-Net"
+	- ![](../../_media/Diffusion_Application_Xie_comps.png 'Figure. 11, Reconstruction results of 4x and 8x on PD data. Origin: Xie et al., 2022.')
+
+###### *Cons*
+
+- Slow inference
+	- Evidence: "It takes 10s to generate one slice with 250 sampling steps on RTX 3090Ti."
+- Only FastMRI dataset was used
+- The author assume that $\epsilon_M$ is zero in its derivation
+	- Evidence: "When noise is not zero, the theory, training, and inference will be more complicated but could be extended from the current method."
 
 
-#### 
+#### MRI Reconstruction via Data Driven Markov Chain with Joint Uncertainty Estimation [^16] 
+
+#### Towards performant and reliable undersampled MR reconstruction via diffusion model sampling [^19] 
+
+#### Adaptive Diffusion Priors for Accelerated MRI Reconstruction [^17] 
 
 ### 
 
@@ -304,3 +405,15 @@ I have been inspired by the following blogs and thank these bloggers for their h
 [^12]: Zhao R, Yaman B, Zhang Y, et al. fastmri+: Clinical pathology annotations for knee and brain fully sampled multi-coil mri data[J]. arXiv preprint arXiv:2109.03812, 2021.
 
 [^13]: Chung H, Sim B, Ye J C. Come-closer-diffuse-faster: Accelerating conditional diffusion models for inverse problems through stochastic contraction[C]//Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2022: 12413-12422.
+
+[^14]: Xie Y, Li Q. Measurement-conditioned Denoising Diffusion Probabilistic Model for Under-sampled Medical Image Reconstruction[J]. arXiv preprint arXiv:2203.03623, 2022.
+
+[^15]: Dhariwal P, Nichol A. Diffusion models beat gans on image synthesis[J]. Advances in Neural Information Processing Systems, 2021, 34: 8780-8794.
+
+[^16]: Luo G, Heide M, Uecker M. MRI Reconstruction via Data Driven Markov Chain with Joint Uncertainty Estimation[J]. arXiv preprint arXiv:2202.01479, 2022.
+
+[^17]: Dar S U H, Öztürk Ş, Korkmaz Y, et al. Adaptive Diffusion Priors for Accelerated MRI Reconstruction[J]. arXiv preprint arXiv:2207.05876, 2022.
+
+[^18]: Cui Z X, Cao C, Liu S, et al. Self-Score: Self-Supervised Learning on Score-Based Models for MRI Reconstruction[J]. arXiv preprint arXiv:2209.00835, 2022.
+
+[^19]: Peng C, Guo P, Zhou S K, et al. Towards performant and reliable undersampled MR reconstruction via diffusion model sampling[C]//International Conference on Medical Image Computing and Computer-Assisted Intervention. Springer, Cham, 2022: 623-633.

@@ -505,6 +505,11 @@ The score function based MCMC makes the diffusion model a special case of EBMs. 
 
 基于分数函数的MCMC使扩散模型成为EBM的一个特例。一种新的扩散模型与EMB的结合，提出了一种扩散恢复似然法[^18]，利用扩散模型的反向过程，从一连串的EMB中学习样本，这使得从边际分布中采样变得更加容易和可行。
 
+Here is also an interesting summary of Diffusion models with VAEs and Flow-based models from [jmtomczak's Blog](https://jmtomczak.github.io/blog/10/10_ddgms_lvm_p2.html).
+
+![](../../_media/Diffusion_in_MRI_Recon_comparisons.png 'Fig. 6, A comparison among DDGMs, VAEs and Flows. Origin: jmtomczak')
+
+
 ### Diffusion Models: Pros and Cons
 
 Let us conclude with a summary of the advantages and disadvantages of the Diffusion Model:
@@ -540,6 +545,7 @@ I have been inspired by the following blogs and thank these bloggers for their h
 - [Maciej Domagała -- The recent rise of diffusion-based models](https://maciejdomagala.github.io/generative_models/2022/06/06/The-recent-rise-of-diffusion-based-models.html)
 - [Ryan O'Connor -- Introduction to Diffusion Models for Machine Learning](https://www.assemblyai.com/blog/diffusion-models-for-machine-learning-introduction/)
 - [Angus Turner -- Diffusion Models as a kind of VAE](https://angusturner.github.io/generative_models/2021/06/29/diffusion-probabilistic-models-I.html)
+- [jmtomczak's Blog -- Diffusion-based Models](https://jmtomczak.github.io/blog/10/10_ddgms_lvm_p2.html).
 
 
 ## Reference
