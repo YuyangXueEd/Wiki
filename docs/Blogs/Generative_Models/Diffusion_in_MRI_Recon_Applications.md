@@ -261,6 +261,144 @@ In the multi-coil images, they consider the SOSS type and the hybrid type method
 
 #### Self-Score: Self-Supervised Learning on Score-Based Models for MRI Reconstruction [^18] 
 
+Since previous score-based diffusion models require a large amount of fully-sampled MRI data for training, the author proposed a self-supervised method which is a fully-sampled-data-free score-based diffusion model for reconstruction. Sometimes, accessing numerous fully sampled data might be challenging, self-supervised model can learn reconstruction mappings only from undersampled data. The drawbacks are the accuracy are often inferior than supervised models, as well as poor generalisation on different sampling trajectories. However, combined with a diffusion model with good generalisation capabilities and high accuracy, self-supervised method may also has its advantages.
+
+由于以前的 score-based diffusion model 需要大量的完全采样的MRI数据进行训练，作者提出了一种自我监督的方法，这是一种无需全采样数据的 score-based diffusion model，用于重建。有时，获取大量全采样数据可能是一种挑战，自监督模型可以只从欠采样数据中学习重建映射。其缺点是准确度往往低于监督模型，以及对不同采样轨迹的泛化性差。然而，与具有良好泛化能力和高精确度的扩散模型相结合，自监督方法也有其优势。
+
+Used in the corrector phase of Predictor-Corrector algorithm [^3], Langevin MCMC sampling in score-based method is performed according to the score function to obtain samples that obey the distribution of data $p(x)$:
+
+在 Predictor-Corrector 算法[^3]的修正器阶段使用，score-based 方法中的Langevin MCMC采样根据 score function 进行，以获得服从数据$p(x)$分布的样本。
+
+$$
+x_{i+1}=x_i+\frac{\eta_i}{2}s_\phi(x_i) + \sqrt{\eta_i}z_t \tag{13}
+$$
+
+where $\eta_i>0$ is the step size, and $z_t$ is standard normal distribution. The denoising score matching method first perturbs the original data $x$ to $\tilde{x}$, where $q_\epsilon(\tilde{x}|x):=\mathcal{N}(\tilde{x};x, \epsilon^2\mathbb{I})$. A reverse process using the Eq. $(13)$ above to generate the data $\tilde{x}\sim q_{\epsilon_{min}}$ from the random noise $n \sim q_{\epsilon_{\max}}(n)$. 
+
+其中$\eta_i>0$为步长，$z_t$为标准正态分布。Denoising score matching 方法首先将原始数据$x$扰动为$\tilde{x}$，其中$q_\epsilon(\tilde{x}|x):=\mathcal{N}(\tilde{x};x, \epsilon^2\mathbb{I})$。使用上述公式$(13)$采样反向过程，从随机噪声$n\sim q_{\epsilon_{min}}$产生数据$\tilde{x}\sim q_{\epsilon_{max}}(n)$。
+
+Focusing on MRI data $\{x_i\in \mathbb{C}^d\}^N_{i=1}$ represents the fully sampled MR images. For predicting reconstruction without fully sampled calibration data scenario, an undersampled k-space data pair is constructed by drawing on the self-supervised denoising method to construct a noisy data pair, and then the interpolation relationship between the missing data and the sampled data is learned from it to achieve missing data interpolation.
+
+这篇文章专注于MRI数据，$\{x_i \in \mathbb{C}^d\}^N_{i=1}$ 代表完全采样的MR图像。对于没有完全采样的校准数据情况下的预测重建，通过借鉴自监督去噪方法构建一个噪声欠采样的K空间数据对，然后从中学习缺失数据和采样数据之间的插值关系，实现缺失数据插值。
+
+The paper's main task is to accurately estimate the distribution $p(x)$ of the fully sampled image $x$ from the undersampled data $y$. The author first make an assumption that $y'$ is a subsample of undersampled measurement $y$. Suppose there exists a mapping $f_\theta$ that:
+
+$$
+f_\theta(y)=x+n_1, \ \ f_\theta(y')=\hat{y}+n_2
+$$
+
+Here is an example of an undersampling trajectory on $y$ and $y'$:
+
+![](../../_media/Diffusion_Application_self-score_trajectory.png 'Figure. 12, Trajectories on undersampled y and subsampled y`. Orig: Cui et al., 2022.')
+
+where $\hat{y}$ denotes the image obtained by inverse Fourier transform and channel merging of $y$, i.e., $\hat{y}=S^*F^{-1}y$, $n_1$ and $n_2$ denote the Gaussian noise with scales $\gamma_1$ and $\gamma_2$. This assumption can be considered a generalisation of the "linear interpolability" and "translation invariance" of the classical k-space interpolation method [^20] .
+
+其中$\hat{y}$表示通过$y$的反傅里叶变换和通道合并得到的图像，即$\hat{y}=S^*F^{-1}y$，$n_1$和$n_2$表示高斯噪声的尺度$\gamma_1$和$\gamma_2$。这个假设可以被认为是经典k-空间插值方法的 "线性插值性 "和 "平移不变性 "的泛化 [^20] 。
+
+According to the assumption above, we can obtain the conditional distribution $p(x|y, \theta)$. Using the Bayesian formula as long as we get the distribution of the parameter $\theta$:
+
+根据上述假设，我们可以得到条件分布$p(x|y, \theta)$。使用贝叶斯公式，只要我们得到参数$\theta$的分布。
+
+$$
+p(x)=\int p(x|y, \theta)p(y)p(\theta)dyd\theta \tag{14}
+$$
+
+Since we have the undersampled k-space data pairs $D:=\{(y_i,y'_i)\}^N_{i=1}$, we can estimate $p(\theta|D)$ by Bayesian inference, i.e., by using $q(\theta|\mu_\theta, \sigma_\theta)$ to estimate $p(\theta|D)$:
+
+由于我们有欠采样的K空间数据对$D:=\{(y_i,y'_i)\}^N_{i=1}$，我们可以通过贝叶斯推理估计$p(\theta|D)$，即用$q(\theta|\mu_\theta, \sigma_\theta)$来估计$p(\theta|D)$ 。
+
+$$
+q(\theta|\mu_\theta, \sigma_\theta) \sim \prod_s \mathcal{N}(\theta_s|\mu_{\theta, s}, \sigma_{\theta,s})
+$$
+
+The author used a Bayesian convolutional neural network (BCNN) to represent $f_\theta$ and obtain the distribution $q(\theta|\mu_\theta, \sigma_\theta)$. The undersampled k-space data pairs $\{y,y'\}$ are constructed, the BCNN is trained by minimising the KL divergence of $q(\theta|\mu_\theta, \sigma_theta)$ and $p(\theta|\{y,y'\})$. The model is directly adopted from the POCS-SPIRiT model driven neural network [^21] . The BCNN framework is shown below:
+
+作者使用贝叶斯卷积神经网络（BCN）来表示$f/theta$并获得分布$q(\theta|\mu_\theta, \sigma_\theta)$。构建欠采样的K空间数据对$\{y,y'\}$，通过最小化$q(\theta|\mu_\theta, \sigma_\theta)$和$p(\theta|\{y,y'\})$的 KL Divergence 来训练BCN。该模型直接采用了POCS-SPIRiT模型驱动神经网络 [^21] 。BCNN的框架如下所示。
+
+![](../../_media/Diffusion_Application_self-score_BCNN.png 'Fig. 13, The BCNN used for obtaining parameter distribution. Origin, Cui et al., 2022')
+
+Since we now have the distribution of parameter $q(\theta|\mu_\theta, \sigma_\theta)$, we can now obtain the distribution $p(x)$. However, the ground truth score-function is not available, thus $\triangledown \log p(x)$ can be esitmated in a self-supervised manner. The minimiser of $\mathbb{E}_{p_x}[1/2\|s_\phi(x)-\triangledown \log p(x)]$ can be obtained by equivalently minimising the following objective:
+
+由于我们现在有了参数$q(\theta|\mu_\theta, \sigma_\theta)$的分布，我们现在可以得到分布$p(x)$。然而，ground truth score-function 是无法得到的，因此$\triangledown\log p(x)$可以以自我监督的方式进行计算。$\mathbb{E}_{p_x}[1/2|s_phi(x)-\triangledown log p(x)]$的最小化可以通过等价的最小化目标函数得到。
+
+$$
+\underset{\phi}{\min}\mathbb{E}_{p(x,y,\theta)}\left[\frac12 \left\|s_\phi(x)-\frac{\partial \log p(x|\theta,y)}{\partial x}\right\|^2\right]
+$$
+
+The diffusion model is illustrated as follows. For the forward process, the model learn the score function approximating the probability density gradient of $x$ by perturbating the $f_\theta(y)$ with Gaussian noise at different scales. As for the reverse process, the model performs MCMC sampling conditional on the measurement $y$ to reconstruct MR image using the learned score function as a prior:
+
+![](../../_media/Diffusion_Application_self-score_NCSNv2.png 'Fig. 14, NCSNv2 based diffusion model with parameter distribution. Origin: Cui et al., 2022')
+
+The score function at different perturbation levels can be learned, and then the desired samples are obtained by performing MCMC sampling according to them. We perturb the $f_\theta(y)$ by Gaissuain noise with scales $\{\epsilon_i\}^T_{i=1}$ that satisfies $\epsilon_1 < \dots \epsilon_T$. Let $p_{\epsilon_i}(\tilde{x}|y, \theta)=\mathcal{N}(\tilde{x}|f_\theta(y), \epsilon^2_i \mathbb{I})$ and perturbed data distribution is $p_{\epsilon_i}(\tilde{x}) = \int p_{\epsilon_i}(\tilde{x}|y, \theta) p(y)p(\theta)dyd\theta$. If $\epsilon_1 = \gamma_1$, then $p_{\epsilon_1}(x)=p(x)$ holds. The training of a joint score function $s_\phi(\tilde{x}, \epsilon_i)$ is minimising the following loss:
+
+$$
+\frac{1}{2L}\sum^L_{i=1}\mathbb{E}_{p(y)q(\theta)}\mathbb{E}_{p_{\epsilon_i}(\tilde{x}|y,\theta)}\left[\left\| \epsilon_i s_phi(\tilde{x},\epsilon_i) + \frac{\tilde{x}-f_\theta(y)}{\epsilon_i}   \right|^2\right] \tag{15}
+$$
+
+The sampling process can be done with Langevin MCMC:
+
+$$
+\begin{aligned}
+x_{i+1} &= x_i + \frac{\eta_i}{2} \triangledown \log p(x_i|y) + \sqrt{eta_i}z_i\\
+&= x_i + \frac{\eta_i}{2}(\triangledown \log p(x_i) + \triangledown \log p(y|x_i)) + \sqrt{eta_i}z_i\\
+&=x_i + \frac{\eta_i}{2}\left(s_\phi(x_i, \epsilon_i) + \frac{A^*(Ax_i-y)}{\gamma^2+\epsilon^2}\right)+\sqrt{eta_i}z_i
+
+\end{aligned}
+$$
+
+The detailed conditional Langevin MCMC sampling is shown as follows:
+
+![](../../_media/Diffusion_Application_self-score_CLMCMCa.png 'Fig. 15, Conditional Langevin MCMC Sampling. Origin: Cui et al., 2022.')
+
+
+##### Experiments
+
+###### Dataset
+
+- FastMRI multi-coil knee raw data [^8] 
+	- To verify the generalisability, we will test the knee data trained model's performance on brain MRI reconstruction.
+- SIAT data ([中国科学院深圳先进技术研究院](https://www.siat.ac.cn/))
+	- overall 1000 fully sampled multi contrast data from 10 subjects with a 3T scanner
+
+###### Network and Training
+
+- BCNN
+	- ![](Diffusion_Application_self-score_f_theta.png 'Fig. 16, Schematic diagram of the network architecture of the $f_\theta$. Origin: Cui et al., 2022')
+		- The upper and lower convolutional network modules exploit redundancies in the image domain and self-consistency in the k-space.
+		- $\mathcal{P_c}$ denotes the projection onto $y'$, $\mathcal{P_c}(x)=(\mathbb{I}-P')x+y'$, where $P'$ is the undersampling pattern of $y'$.
+- NCSNv2 network to learn the score function
+	- $L = 50$, $\epsilon_1 = 0.0066$, number of classes is $266$, ema is true, ema rate is $0.999$.
+
+
+
+##### Pros and Cons
+
+###### *Pros*
+
+- The first to propose a self-supervised learning score-based diffusion model without a fully sampled MRI training set for MRI reconstruction.
+	- Evidence: "The score matching model Eq. $(15)$ works by seperating out the noise from the current image $\tilde{x}, so even if $f_\theta(y)$ is not perfectly clean image, the impact on the noise separation mechanism $(s_\phi(\cdot))$ learning is relatively small."
+	- Evidence: "We utilise the prior $p(x)$ on a set of model $\theta$ over a set of data $y$ rather than the prior of a single model over a single set of data, i.e., $f_{\theta_i}(y_i), \theta_i \sim q(\theta)$ and $y_i\sim p(y)$. It has been shown that such ensemble models can often outperform single models."
+- The proposed method outperforms traditional parallel imaging, self-supervised DL, and conventional supervised DL methods, and achieves comparable performance with conventional (fully sampled data trained) score-based diffusion methods.
+	- Evidence: "Our proposed method performs well in aliasing pattern suppression and image texture detail recovery. In particular, it is worth mentioning that the proposed fully-sampled-data-free method outperforms the conventional supervised DL method that requires a fully sampled training dataset, which is of practical significance."
+	- ![](../../_media/Diffusion_Application_self-score_results.png 'Figure. 16, Reconstruction comparison and results. Origin, Cui et al., 2022.')
+-  Good genralisation ability for OOD data.
+	- Evidence: "Pattern Shift: ... when the sampling patterns were inconsistent during training and testing ... we can see that both supervised and self-supervised methods degrade significantly due to the pattern shift. On the other hand, it is easy to see that our proposed method achieves satisfactory performance in both aliasing pattern suppression and detail recovery."
+		- ![](../../_media/Diffusion_Application_self-score_OOD_PS.png 'Figure 17. Reconstruction results of OOD Pattern Shift. Origin: Cui et al., 2022')
+	- Evidence: "Data Shift: ... when the data type (anatomies) were inconsistent during training and testing ... The proposed method in this paper can accurately reconstruct images, thus verifying its superior generalisation in data shift."
+		- ![](../../_media/Diffusion_Application_self-score_OOD_DS.png 'Figure 18. Reconstruction results of OOD Data Shift. Origin: Cui et al., 2022')
+- Comparable between Conventional Score-based Methods
+	- Evidence: " ... we designed comparison experiments with the conventional score-based diffusion method trained on fully sampled data to verify the accuracy of the proposed self-supervised learning method on the data distribution estimation ... It can be found that the proposed self-score method performs almost identically to the score method on the fastMRI knee dataset and even slightly better than the score on the SIAT brain dataset. This experiment validates the accuracy of the proposed self-supervised learning method for data distribution estimation."
+		- ![](../../_media/Diffusion_Application_self-score_comp_score.png 'Figure 19. Quantitative results between score and self-score. Origin: Cui et al., 2022')
+
+###### *Cons*
+
+- The proposed Assumption is a common assumption in k-space interpolation methods, there is no rigorous theory to guarantee its correctness.
+- MCMC method of sampling will be more accurate for parameter $\theta$
+	- Evidence: "it is also possible to collect the sample $\theta_i$ by MCMC sampling and then approximate the distribution of $\theta$ ... It is worth noting that the MCMC method and the more accurate distribution approximation methods will be reserved as our options."
+- Slower than conventional diffusion model
+	- Evidence: "Our method (including other score-based diffusion methods) needs to perform an iteration (MCMC sampling) to reconstruct the image, which takes a relatively long time."
+
+
 ### DDPM-Based Diffusion Models
 
 #### Measurement-conditioned Denoising Diffusion Probabilistic Model for Under-sampled Medical Image Reconstruction [^14] 
@@ -317,7 +455,7 @@ $$
 q(y_{M^c,t-1}|y_{M^c,t}, y_{M^c,0}, M, y_M)=\mathcal{N}(\tilde{\mu}_t, \tilde{\beta}^2_tM^c) \tag{12}
 $$
 
-where $\tilde{\mu}_t = \frac{\alpha_t\bar{\beta}^2_{t-1}}{\bar{\beta}^2_{t}}y_{M^c,t}+\frac{\alpha_{t-1}\bar{\beta}^2_{t}}{\bar{\beta}^2_{t}}y_{M^c,0}$, $\tilde{\beta}_t=\frac{\beta\bar{\beta}_{t-1}}{\bar{\beta}_t}=$.
+where $\tilde{\mu}_t = \frac{\alpha_t\bar{\beta}^2_{t-1}}{\bar{\beta}^2_{t}}y_{M^c,t}+\frac{\alpha_{t-1}\bar{\beta}^2_{t}}{\bar{\beta}^2_{t}}y_{M^c,0}$, $\tilde{\beta}_t=\frac{\beta\bar{\beta}_{t-1}}{\bar{\beta}_t}$.
 
 The training and sampling processing is very much similar to DDPM. More derivation can check the [supplement material](https://static-content.springer.com/esm/chp%3A10.1007%2F978-3-031-16446-0_62/MediaObjects/539249_1_En_62_MOESM1_ESM.pdf) by the author.
 
@@ -417,3 +555,7 @@ I have been inspired by the following blogs and thank these bloggers for their h
 [^18]: Cui Z X, Cao C, Liu S, et al. Self-Score: Self-Supervised Learning on Score-Based Models for MRI Reconstruction[J]. arXiv preprint arXiv:2209.00835, 2022.
 
 [^19]: Peng C, Guo P, Zhou S K, et al. Towards performant and reliable undersampled MR reconstruction via diffusion model sampling[C]//International Conference on Medical Image Computing and Computer-Assisted Intervention. Springer, Cham, 2022: 623-633.
+
+[^20]: Millard C, Chiew M. Self-supervised deep learning MRI reconstruction with Noisier2Noise[J]. arXiv preprint arXiv:2205.10278, 2022.
+
+[^21]: Cui Z X, Cheng J, Zhu Q, et al. Equilibrated Zeroth-Order Unrolled Deep Networks for Accelerated MRI[J]. arXiv preprint arXiv:2112.09891, 2021.
